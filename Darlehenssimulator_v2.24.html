@@ -455,12 +455,33 @@
                                     <label class="block text-sm font-semibold text-slate-600 mb-1">Anbieter auswählen</label>
                                     <select id="provider-select" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-lg"><option value="Wir (Simulator)">Wir (Simulator)</option><option value="WIR (Simulation neu)">WIR (Simulation neu)</option><option value="Allianz">Allianz</option><option value="Axa">Axa</option><option value="Signal">Signal</option><option value="Coba">Coba</option><option value="Deuba">Deuba</option><option value="DKB">DKB</option><option value="ING">ING</option><option value="PSD RR">PSD RR</option></select>
                                 </div>
-                                <button id="edit-provider-btn" class="w-full md:w-auto bg-indigo-600 text-white font-bold text-lg py-3 px-8 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors shadow-sm flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                    </svg>
-                                    Bearbeiten
-                                </button>
+                                <div class="flex flex-wrap gap-4 w-full">
+                                    <button id="edit-provider-btn" class="flex-1 bg-indigo-600 text-white font-bold text-lg py-3 px-6 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors shadow-sm flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        </svg>
+                                        Bearbeiten
+                                    </button>
+                                    <button id="copy-provider-btn" class="flex-1 bg-teal-600 text-white font-bold text-lg py-3 px-6 rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors shadow-sm flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path>
+                                        </svg>
+                                        Kopieren &amp; Neu
+                                    </button>
+                                    <button id="export-json-btn" class="flex-1 bg-slate-700 text-white font-bold text-lg py-3 px-6 rounded-lg hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 transition-colors shadow-sm flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                        </svg>
+                                        Export (JSON)
+                                    </button>
+                                    <button id="import-json-btn" class="flex-1 bg-slate-700 text-white font-bold text-lg py-3 px-6 rounded-lg hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 transition-colors shadow-sm flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"></path>
+                                        </svg>
+                                        Import (JSON)
+                                    </button>
+                                    <input type="file" id="import-file" class="hidden" accept=".json">
+                                </div>
                             </div>
                             <p class="text-sm text-slate-500 mt-2">Wählen Sie einen Anbieter aus, um dessen spezifische Werte und Logik im Detail anzupassen.</p>
                         </div>
@@ -476,6 +497,7 @@
                                         <th class="py-4 px-3 font-bold text-slate-700 border-b">P + 2 Kd. (Ref)</th>
                                         <th class="py-4 px-3 font-bold text-slate-700 border-b">EE + 2 Kd. (Ref)</th>
                                         <th class="py-4 px-3 font-bold text-slate-700 border-b">Detail-Logik / Bemerkung</th>
+                                        <th class="py-4 px-3 font-bold text-slate-700 border-b text-center">Aktion</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100" id="lhk-values-body"><tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
@@ -839,7 +861,7 @@
                 { min: 10001, max: 25000, lhk: 4000 },
             ];
 
-            const BANK_DATA = [
+            const DEFAULT_BANK_DATA = [
                 { 
                     name: "Wir (Simulator)", 
                     logic: "Standard", 
@@ -880,6 +902,7 @@
                 },
                 { 
                     name: "Allianz", 
+                    type: "standard",
                     base: 1000, partner: 400, child: 175, netPct: 40,
                     logic: "1.P 1000, 2.P 400, Kd 175",
                     calc: function(isPaar, kids, net, total) {
@@ -890,6 +913,7 @@
                 },
                 { 
                     name: "Axa", 
+                    type: "standard",
                     base: 950, partner: 250, child: 300, netPct: 0,
                     logic: "Single 950, Paar 1200, Kd 300", 
                     calc: function(isPaar, kids, net, total) {
@@ -899,6 +923,7 @@
                 },
                 { 
                     name: "Signal", 
+                    type: "standard",
                     base: 850, partner: 480, child: 300, netPct: 40,
                     logic: "1.P 850, 2.P 480, Kd 300", 
                     calc: function(isPaar, kids, net, total) {
@@ -929,6 +954,7 @@
                 },
                 { 
                     name: "Deuba", 
+                    type: "standard",
                     base: 840, partner: 360, child: 360, netPct: 0,
                     logic: "1.P 840, 2.P 360, Kd 360", 
                     calc: function(isPaar, kids, net, total) {
@@ -938,6 +964,7 @@
                 },
                 { 
                     name: "DKB", 
+                    type: "standard",
                     base: 754, partner: 459, child: 358, netPct: 30,
                     logic: "1.P 754, Paar 1213, Kd 358", 
                     calc: function(isPaar, kids, net, total) {
@@ -948,6 +975,7 @@
                 },
                 { 
                     name: "ING", 
+                    type: "standard",
                     base: 809, partner: 404, child: 275, netPct: 0,
                     logic: "min 730 max 2810", 
                     calc: function(isPaar, kids, net, total) {
@@ -957,6 +985,7 @@
                 },
                 { 
                     name: "PSD RR", 
+                    type: "standard",
                     base: 1300, partner: 300, child: 200, netPct: 40,
                     logic: "1300 + 300/300/200", 
                     calc: function(isPaar, kids, net, total) {
@@ -966,6 +995,45 @@
                     }
                 }
             ];
+
+            let BANK_DATA = [...DEFAULT_BANK_DATA];
+
+            // Helper for dynamic calc functions
+            function assignCalc(bank) {
+                if (bank.type === 'standard') {
+                    bank.calc = function(isPaar, kids, net, total) {
+                        const flat = (this.base || 0) + (isPaar ? (this.partner || 0) : 0) + (kids * (this.child || 0));
+                        const pct = net * ((this.netPct || 0) / 100);
+                        return { flat, pct };
+                    };
+                } else if (bank.type === 'person_steps') {
+                    bank.calc = function(isPaar, kids, net, total) {
+                        const persons = (isPaar ? 2 : 1) + kids;
+                        let flat = 0;
+                        if (persons === 1) flat = this.p1;
+                        else if (persons === 2) flat = this.p2;
+                        else if (persons === 3) flat = this.p3;
+                        else if (persons === 4) flat = this.p4;
+                        else flat = this.p4 + ((persons - 4) * this.pNext);
+                        if (this.max > 0 && flat > this.max) flat = this.max;
+                        const pct = net * (this.netPct / 100);
+                        return { flat, pct };
+                    };
+                } else if (bank.type === 'wir_new') {
+                     bank.calc = function(isPaar, kids, net, total) {
+                        if (total < this.threshold) {
+                            const persons = (isPaar ? 2 : 1) + kids;
+                            const idx = Math.min(persons - 1, this.rates.length - 1);
+                            let flat = this.rates[idx];
+                            if (persons > this.rates.length) flat = this.rates[this.rates.length - 1] + (persons - this.rates.length) * 300;
+                            return { flat, pct: 0 };
+                        } else {
+                            const pct = total * (this.netPct / 100);
+                            return { flat: 0, pct };
+                        }
+                    };
+                }
+            }
 
             const CHILD_BENEFIT = 255;
             
@@ -1004,6 +1072,10 @@
             const lhkValuesBody = document.getElementById('lhk-values-body');
             const providerSelect = document.getElementById('provider-select');
             const editProviderBtn = document.getElementById('edit-provider-btn');
+            const copyProviderBtn = document.getElementById('copy-provider-btn');
+            const exportJsonBtn = document.getElementById('export-json-btn');
+            const importJsonBtn = document.getElementById('import-json-btn');
+            const importFile = document.getElementById('import-file');
             
             // Chart Tab Controls
             const chartStatusButtons = {
@@ -1114,7 +1186,7 @@
                 const currentSelection = providerSelect.value;
                 providerSelect.innerHTML = '';
                 BANK_DATA.forEach(bank => {
-                    if (bank.name === "Wir (o. Kindergeld)") return; // Hide from dropdown as it shares settings with Wir (Simulator)
+                    if (bank.name === "Wir (o. Kindergeld)") return; 
                     const opt = document.createElement('option');
                     opt.value = bank.name;
                     opt.textContent = bank.name;
@@ -1126,11 +1198,10 @@
 
                 // Populate Table
                 lhkValuesBody.innerHTML = '';
-                BANK_DATA.forEach(bank => {
+                BANK_DATA.forEach((bank, idx) => {
                     let s, p, p2k, ee2k, netStr;
 
                     if (bank.name === "Wir (Simulator)" || bank.name === "Wir (o. Kindergeld)") {
-                        // Übertrage die Werte aus WIR (Simulation neu) für die Anzeige
                         const wirNeu = BANK_DATA.find(b => b.name === "WIR (Simulation neu)");
                         s = wirNeu.rates[0];
                         p = wirNeu.rates[1];
@@ -1138,26 +1209,26 @@
                         p2k = wirNeu.rates[3];
                         ee2k = wirNeu.rates[2];
                     } else if (bank.type === 'person_steps') {
-                        // Logic for person-step-based banks (Coba)
                         s = bank.p1;
                         p = bank.p2;
-                        netStr = bank.netPct > 0 ? bank.netPct + "%" : "";
-                        p2k = bank.p4; // 2 adults + 2 kids = 4 persons
-                        ee2k = bank.p3; // 1 adult + 2 kids = 3 persons
+                        netStr = (bank.netPct || 0) > 0 ? bank.netPct + "%" : "";
+                        p2k = bank.p4; 
+                        ee2k = bank.p3; 
                     } else if (bank.type === 'wir_new') {
                         s = bank.rates[0];
                         p = bank.rates[1];
                         netStr = bank.netPct + "%";
-                        p2k = bank.rates[3]; // 2+2=4
-                        ee2k = bank.rates[2]; // 1+2=3
+                        p2k = bank.rates[3];
+                        ee2k = bank.rates[2];
                     } else {
-                        // Standard logic
-                        s = bank.base;
-                        p = bank.base + bank.partner;
-                        p2k = bank.base + bank.partner + (2 * bank.child);
-                        ee2k = bank.base + (2 * bank.child);
-                        netStr = bank.netPct > 0 ? bank.netPct + "%" : "";
+                        s = bank.base || 0;
+                        p = (bank.base || 0) + (bank.partner || 0);
+                        p2k = (bank.base || 0) + (bank.partner || 0) + (2 * (bank.child || 0));
+                        ee2k = (bank.base || 0) + (2 * (bank.child || 0));
+                        netStr = (bank.netPct || 0) > 0 ? bank.netPct + "%" : "";
                     }
+
+                    const isCustom = !DEFAULT_BANK_DATA.some(d => d.name === bank.name);
 
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition-colors border-b border-slate-100";
@@ -1168,9 +1239,31 @@
                         <td class="p-1"><div class="readonly-cell text-center">${netStr}</div></td>
                         <td class="p-1"><div class="readonly-cell">${p2k}</div></td>
                         <td class="p-1"><div class="readonly-cell">${ee2k}</div></td>
-                        <td class="p-1"><div class="readonly-cell italic text-slate-500">${bank.logic}</div></td>
+                        <td class="p-1"><div class="readonly-cell italic text-slate-600 max-w-xs overflow-hidden text-ellipsis whitespace-nowrap" title="${bank.logic}">${bank.logic}</div></td>
+                        <td class="p-1 text-center">
+                            ${isCustom ? `
+                                <button class="delete-bank-btn p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" data-name="${bank.name}" title="Anbieter löschen">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            ` : '-'}
+                        </td>
                     `;
                     lhkValuesBody.appendChild(tr);
+                });
+
+                // Attach delete listeners
+                document.querySelectorAll('.delete-bank-btn').forEach(btn => {
+                    btn.onclick = (e) => {
+                        const name = e.currentTarget.getAttribute('data-name');
+                        if (confirm(`Soll der Anbieter "${name}" wirklich gelöscht werden?`)) {
+                            BANK_DATA = BANK_DATA.filter(b => b.name !== name);
+                            saveData();
+                            updateLhkValuesTable();
+                            updateMarketTable();
+                        }
+                    };
                 });
             }
             
@@ -1356,17 +1449,90 @@
                 });
             }
 
+            // --- PERSISTENCE & CUSTOM PROVIDERS ---
+            function saveData() {
+                const custom = BANK_DATA.filter(b => !DEFAULT_BANK_DATA.some(d => d.name === b.name));
+                const data = {
+                    customProviders: custom.map(b => {
+                        const copy = { ...b };
+                        delete copy.calc; // Functions can't be saved
+                        return copy;
+                    }),
+                    simulatorLhk: SIMULATOR_LHK
+                };
+                localStorage.setItem('lhk_simulator_data', JSON.stringify(data));
+            }
+
+            function loadData() {
+                const stored = localStorage.getItem('lhk_simulator_data');
+                if (stored) {
+                    try {
+                        const data = JSON.parse(stored);
+                        if (data.simulatorLhk) SIMULATOR_LHK = data.simulatorLhk;
+                        if (data.customProviders) {
+                            const custom = data.customProviders;
+                            custom.forEach(b => assignCalc(b));
+                            BANK_DATA = [...DEFAULT_BANK_DATA, ...custom];
+                        }
+                    } catch (e) {
+                        console.error("Error loading data", e);
+                    }
+                }
+            }
+
+            function exportData() {
+                const custom = BANK_DATA.filter(b => !DEFAULT_BANK_DATA.some(d => d.name === b.name));
+                const data = {
+                    version: "2.24",
+                    exportDate: new Date().toISOString(),
+                    customProviders: custom.map(b => {
+                        const copy = { ...b };
+                        delete copy.calc;
+                        return copy;
+                    }),
+                    simulatorLhk: SIMULATOR_LHK
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `LHK_Stammdaten_Export_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+            }
+
+            function importData(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (data.simulatorLhk) SIMULATOR_LHK = data.simulatorLhk;
+                        if (data.customProviders) {
+                            const newCustom = data.customProviders;
+                            newCustom.forEach(b => assignCalc(b));
+                            // Merge or Replace? Let's Replace for simplicity
+                            BANK_DATA = [...DEFAULT_BANK_DATA, ...newCustom];
+                        }
+                        saveData();
+                        updateLhkValuesTable();
+                        updateMarketTable();
+                        alert("Stammdaten erfolgreich importiert!");
+                    } catch (err) {
+                        alert("Fehler beim Importieren der Datei. Ungültiges Format.");
+                    }
+                };
+                reader.readAsText(file);
+            }
+
             // --- EDIT MODAL LOGIC ---
-            function openEditModal() {
-                const providerName = providerSelect.value;
-                const bank = BANK_DATA.find(b => b.name === providerName);
+            function openEditModal(bankObj) {
+                const bank = bankObj && bankObj.target ? BANK_DATA.find(b => b.name === providerSelect.value) : bankObj || BANK_DATA.find(b => b.name === providerSelect.value);
                 if (!bank) return;
 
-                editModalTitle.textContent = `Parameter bearbeiten: ${bank.name}`;
-                editModalBody.innerHTML = ''; // Clear previous content
+                const isNew = bank.isNew === true;
+                editModalTitle.textContent = isNew ? `Neuen Anbieter anlegen` : `Parameter bearbeiten: ${bank.name}`;
+                editModalBody.innerHTML = ''; 
 
                 if (bank.name === "Wir (Simulator)") {
-                    // Specific Editor for Simulator Array
                     let html = `<div class="mb-4 bg-yellow-50 p-4 rounded-lg border border-yellow-200 text-sm text-yellow-800">
                         <span class="font-bold">Achtung:</span> Änderungen an dieser Tabelle beeinflussen direkt die Berechnung der individuellen Simulation.
                     </div>
@@ -1398,8 +1564,6 @@
                     editModalSaveBtn.onclick = () => {
                         const limitInputs = document.querySelectorAll('.sim-limit-input');
                         const lhkInputs = document.querySelectorAll('.sim-lhk-input');
-                        
-                        // Validate and update
                         let newLhkData = [];
                         let prevMax = 0;
                         for(let i=0; i<limitInputs.length; i++) {
@@ -1412,72 +1576,51 @@
                             newLhkData.push({ min: prevMax + (i===0 ? 0 : 1), max: max, lhk: lhk });
                             prevMax = max;
                         }
-                        
                         SIMULATOR_LHK = newLhkData;
+                        saveData();
                         closeEditModal();
-                        updateModalViewTable(); // Update the view-only modal content
-                    };
-
-                } else if (bank.type === 'person_steps') {
-                    // Editor for Step-Based Banks (e.g. Coba)
-                    const fields = [
-                        { label: "1 Person", key: "p1", type: "number" },
-                        { label: "2 Personen", key: "p2", type: "number" },
-                        { label: "3 Personen", key: "p3", type: "number" },
-                        { label: "4 Personen", key: "p4", type: "number" },
-                        { label: "Jede weitere Person", key: "pNext", type: "number" },
-                        { label: "Max. LHK (Cap)", key: "max", type: "number" },
-                        { label: "Ansatz Netto (%)", key: "netPct", type: "number" },
-                        { label: "Logik / Bemerkung", key: "logic", type: "textarea" }
-                    ];
-
-                    let html = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
-                    fields.forEach(f => {
-                         const val = bank[f.key] !== undefined ? bank[f.key] : "";
-                         const colSpan = f.type === 'textarea' ? 'md:col-span-2' : 'md:col-span-1';
-                         if (f.type === 'textarea') {
-                             html += `<div class="${colSpan}">
-                                <label class="block text-sm font-medium text-slate-700 mb-1">${f.label}</label>
-                                <textarea class="w-full p-2 border border-slate-300 rounded focus:ring-indigo-500 focus:border-indigo-500 generic-input" data-key="${f.key}" rows="2">${val}</textarea>
-                             </div>`;
-                         } else {
-                             html += `<div class="${colSpan}">
-                                <label class="block text-sm font-medium text-slate-700 mb-1">${f.label}</label>
-                                <input type="number" class="w-full p-2 border border-slate-300 rounded focus:ring-indigo-500 focus:border-indigo-500 generic-input" data-key="${f.key}" value="${val}">
-                             </div>`;
-                         }
-                    });
-                    html += `</div>
-                    <div class="mt-4 p-3 bg-blue-50 text-blue-800 text-sm rounded border border-blue-100">
-                        Hinweis: Diese Bank nutzt eine Personen-Staffel. Änderungen wirken sofort.
-                    </div>`;
-                    
-                    editModalBody.innerHTML = html;
-
-                    editModalSaveBtn.onclick = () => {
-                        const inputs = document.querySelectorAll('.generic-input');
-                        inputs.forEach(input => {
-                            const key = input.getAttribute('data-key');
-                            let val = input.value;
-                            if (key !== 'logic') {
-                                val = parseFloat(val) || 0;
-                            }
-                            bank[key] = val;
-                        });
-                        closeEditModal();
+                        updateModalViewTable(); 
                     };
 
                 } else {
-                    // Generic Editor for Standard Providers
-                    const fields = [
-                        { label: "Single (Basis)", key: "base", type: "number" },
-                        { label: "2. Person (Aufschlag)", key: "partner", type: "number" },
-                        { label: "Jedes Kind (Aufschlag)", key: "child", type: "number" },
-                        { label: "Ansatz Netto (%)", key: "netPct", type: "number" },
-                        { label: "Logik / Bemerkung", key: "logic", type: "textarea" }
-                    ];
+                    const fields = [];
+                    if (bank.type === 'person_steps') {
+                        fields.push(
+                            { label: "1 Person", key: "p1", type: "number" },
+                            { label: "2 Personen", key: "p2", type: "number" },
+                            { label: "3 Personen", key: "p3", type: "number" },
+                            { label: "4 Personen", key: "p4", type: "number" },
+                            { label: "Jede weitere Person", key: "pNext", type: "number" },
+                            { label: "Max. LHK (Cap)", key: "max", type: "number" },
+                            { label: "Ansatz Netto (%)", key: "netPct", type: "number" }
+                        );
+                    } else {
+                        fields.push(
+                            { label: "Single (Basis)", key: "base", type: "number" },
+                            { label: "2. Person (Aufschlag)", key: "partner", type: "number" },
+                            { label: "Jedes Kind (Aufschlag)", key: "child", type: "number" },
+                            { label: "Ansatz Netto (%)", key: "netPct", type: "number" }
+                        );
+                    }
+                    fields.push({ label: "Logik / Bemerkung", key: "logic", type: "textarea" });
 
-                    let html = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+                    let html = `<div class="space-y-4">`;
+                    html += `<div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Anbieter-Name</label>
+                        <input type="text" id="edit-provider-name" class="w-full p-2 border border-slate-300 rounded focus:ring-indigo-500 focus:border-indigo-500" value="${bank.name}" ${!isNew ? 'readonly bg-slate-50' : ''}>
+                    </div>`;
+
+                    if (isNew) {
+                         html += `<div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Berechnungs-Logik</label>
+                            <select id="edit-provider-type" class="w-full p-2 border border-slate-300 rounded focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="standard" ${bank.type === 'standard' ? 'selected' : ''}>Standard (Basis + Aufschläge)</option>
+                                <option value="person_steps" ${bank.type === 'person_steps' ? 'selected' : ''}>Staffel (nach Personenanzahl)</option>
+                            </select>
+                        </div>`;
+                    }
+
+                    html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
                     fields.forEach(f => {
                          const val = bank[f.key] !== undefined ? bank[f.key] : "";
                          const colSpan = f.type === 'textarea' ? 'md:col-span-2' : 'md:col-span-1';
@@ -1493,41 +1636,46 @@
                              </div>`;
                          }
                     });
-                    html += `</div>
-                    <div class="mt-4 p-3 bg-blue-50 text-blue-800 text-sm rounded border border-blue-100">
-                        Hinweis: Änderungen an diesen Parametern aktualisieren sofort die Berechnungen in der Übersicht und im LHK-Vergleichsrechner.
-                    </div>`;
-                    
+                    html += `</div></div>`;
                     editModalBody.innerHTML = html;
 
+                    if (isNew) {
+                        document.getElementById('edit-provider-type').onchange = (e) => {
+                            bank.type = e.target.value;
+                            openEditModal(bank);
+                        };
+                    }
+
                     editModalSaveBtn.onclick = () => {
+                        const nameInput = document.getElementById('edit-provider-name');
+                        const newName = nameInput.value.trim();
+                        if (!newName) { alert("Bitte einen Namen angeben."); return; }
+                        if (isNew && BANK_DATA.some(b => b.name === newName)) { alert("Ein Anbieter mit diesem Namen existiert bereits."); return; }
+                        
+                        bank.name = newName;
                         const inputs = document.querySelectorAll('.generic-input');
                         inputs.forEach(input => {
                             const key = input.getAttribute('data-key');
                             let val = input.value;
-                            if (key !== 'logic') {
-                                val = parseFloat(val) || 0;
-                            }
+                            if (key !== 'logic') val = parseFloat(val) || 0;
                             bank[key] = val;
                         });
+                        delete bank.isNew;
+                        if (isNew) BANK_DATA.push(bank);
+                        assignCalc(bank);
+                        saveData();
                         closeEditModal();
                     };
                 }
-
                 editModal.classList.remove('opacity-0', 'pointer-events-none');
             }
 
             function closeEditModal() {
                 editModal.classList.add('opacity-0', 'pointer-events-none');
                 updateLhkValuesTable();
-                updateMarketTable(); // Refresh market calc table potentially
+                updateMarketTable();
             }
 
-            editProviderBtn.onclick = openEditModal;
-            editModalCloseIcon.onclick = closeEditModal;
-            editModalCancelBtn.onclick = closeEditModal;
-
-            // Update the standard modal viewing table based on SIMULATOR_LHK
             function updateModalViewTable() {
                 const modalBody = document.getElementById('modal-table-body');
                 modalBody.innerHTML = '';
@@ -1664,9 +1812,30 @@
             };
 
             // --- INIT ---
+            loadData();
             updateMarketTable();
             updateLhkValuesTable();
             updateModalViewTable();
+
+            editProviderBtn.onclick = openEditModal;
+            copyProviderBtn.onclick = () => {
+                const source = BANK_DATA.find(b => b.name === providerSelect.value);
+                if (!source) return;
+                // Create a clone but mark as new
+                const copy = JSON.parse(JSON.stringify(source));
+                copy.name = copy.name + " (Kopie)";
+                copy.isNew = true;
+                openEditModal(copy);
+            };
+
+            exportJsonBtn.onclick = exportData;
+            importJsonBtn.onclick = () => importFile.click();
+            importFile.onchange = (e) => {
+                if (e.target.files.length > 0) {
+                    importData(e.target.files[0]);
+                    e.target.value = ''; // Reset for next time
+                }
+            };
             
             document.getElementById('show-table-btn').onclick = () => {
                 const modal = document.getElementById('modal');
