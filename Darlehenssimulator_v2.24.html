@@ -1329,7 +1329,7 @@
                     const div = document.createElement('div');
                     div.className = "flex items-center space-x-2 p-1.5 rounded hover:bg-slate-50 transition-colors cursor-pointer";
                     
-                    // Simple color indicator
+                    // Simple color indicator matching generateChart
                     const colors = ['#3b82f6','#ef4444','#f97316','#84cc16','#10b981','#06b6d4','#6366f1','#d946ef','#8b5cf6','#ec4899'];
                     let color = colors[idx % colors.length];
                     if (bank.name === "Wir (Simulator)") color = '#0f172a';
@@ -1355,42 +1355,34 @@
             }
 
             function generateChart() {
-                updateChartFilters(); // Sync filters
-                // Manually define steps to include low income range
-                let incomeSteps = [0, 1200, 1500];
-                for(let i = 2000; i <= 10000; i += 250) {
-                    incomeSteps.push(i);
-                }
+                updateChartFilters(); // Sync filter checkboxes
                 
-                // Color palette
-                const colors = [
-                    '#3b82f6', // Simulator (Blue)
-                    '#ef4444', // Red
-                    '#f97316', // Orange
-                    '#84cc16', // Lime
-                    '#10b981', // Emerald
-                    '#06b6d4', // Cyan
-                    '#6366f1', // Indigo
-                    '#d946ef', // Fuchsia
-                    '#8b5cf6', // Violet
-                    '#ec4899'  // Pink
-                ];
+                const incomeSteps = [0, 1200, 1500];
+                for(let i = 2000; i <= 10000; i += 250) { incomeSteps.push(i); }
+                
+                const colors = ['#3b82f6','#ef4444','#f97316','#84cc16','#10b981','#06b6d4','#6366f1','#d946ef','#8b5cf6','#ec4899'];
 
-                // Create Curve Datasets
                 const datasets = BANK_DATA.map((bank, idx) => {
-                    const data = incomeSteps.map(net => {
-                        const total = net + (marketKids * CHILD_BENEFIT);
-                        const result = bank.calc(marketIsPaar, marketKids, net, total);
-                        const val = Math.max(result.flat, result.pct);
-                        return { x: net, y: val };
-                    });
+                    // Safety check for calc function
+                    if (typeof bank.calc !== 'function') assignCalc(bank);
+                    
+                    const data = [];
+                    if (typeof bank.calc === 'function') {
+                        try {
+                            incomeSteps.forEach(net => {
+                                const total = net + (marketKids * CHILD_BENEFIT);
+                                const result = bank.calc(marketIsPaar, marketKids, net, total);
+                                const val = Math.max(result.flat || 0, result.pct || 0);
+                                data.push({ x: net, y: val });
+                            });
+                        } catch (err) { console.error(`Calc error for ${bank.name}`, err); }
+                    }
 
-                    // Style
                     const isSim = bank.name === "Wir (Simulator)";
                     const isSimNoKg = bank.name === "Wir (o. Kindergeld)";
                     let color = colors[idx % colors.length];
-                    if (isSim) color = '#0f172a'; // Simulator black/dark
-                    else if (isSimNoKg) color = '#475569'; // Simulator without KG (slate)
+                    if (isSim) color = '#0f172a';
+                    else if (isSimNoKg) color = '#475569';
                     
                     return {
                         type: 'line',
@@ -1398,110 +1390,74 @@
                         data: data,
                         borderColor: color,
                         backgroundColor: color,
-                        pointRadius: 0, // No points on curve for cleaner look
+                        pointRadius: 0,
                         pointHoverRadius: 6,
                         borderWidth: (isSim || isSimNoKg) ? 3 : 2,
-                        borderDash: isSimNoKg ? [5, 5] : [], // Dashed line for variant
-                        tension: 0.2, // slight curve
-                        order: (isSim || isSimNoKg) ? 1 : 2, // Simulators on top
-                        hidden: chartHiddenStates[bank.name] === true // Apply preserved hidden state
+                        borderDash: isSimNoKg ? [5, 5] : [],
+                        tension: 0.2,
+                        order: (isSim || isSimNoKg) ? 1 : 2,
+                        hidden: chartHiddenStates[bank.name] === true
                     };
                 });
 
                 if (chartInstance) {
-                    // Save current hidden states before destroying
                     chartInstance.data.datasets.forEach((ds, i) => {
                         const meta = chartInstance.getDatasetMeta(i);
                         chartHiddenStates[ds.label] = meta.hidden === true;
                     });
-                    
-                    // Re-apply hidden states to new datasets
-                    datasets.forEach(ds => {
-                        ds.hidden = chartHiddenStates[ds.label] === true;
-                    });
-                    
+                    datasets.forEach(ds => { ds.hidden = chartHiddenStates[ds.label] === true; });
                     chartInstance.destroy();
                 }
 
-                chartInstance = new Chart(lhkChartCanvas, {
-                    data: {
-                        datasets: datasets
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'nearest',
-                            axis: 'x',
-                            intersect: false
-                        },
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    usePointStyle: true,
-                                    padding: 20
-                                },
-                                onClick: function(e, legendItem, legend) {
-                                    const index = legendItem.datasetIndex;
-                                    const ci = legend.chart;
-                                    const meta = ci.getDatasetMeta(index);
-                                    
-                                    // Toggle visibility
-                                    meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
-                                    
-                                    // Save state
-                                    chartHiddenStates[legendItem.text] = meta.hidden === true;
-                                    
-                                    ci.update();
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    title: (items) => {
-                                        return items[0].dataset.label;
-                                    },
-                                    label: function(context) {
-                                        let label = context.dataset.label || '';
-                                        if (label) label += ': ';
-                                        label += new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(context.parsed.y);
-                                        return label;
+                try {
+                    chartInstance = new Chart(lhkChartCanvas, {
+                        data: { datasets: datasets },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: 'nearest', axis: 'x', intersect: false },
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: { usePointStyle: true, padding: 20 },
+                                    onClick: (e, legendItem, legend) => {
+                                        const index = legendItem.datasetIndex;
+                                        const ci = legend.chart;
+                                        const meta = ci.getDatasetMeta(index);
+                                        meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
+                                        chartHiddenStates[legendItem.text] = meta.hidden === true;
+                                        ci.update();
+                                        updateChartFilters(); // Sync filters with legend click
                                     }
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                type: 'linear',
-                                position: 'bottom',
-                                min: 0, 
-                                max: 10000,
-                                title: {
-                                    display: true,
-                                    text: 'Haushaltsnetto (€)',
-                                    font: { size: 14, weight: 'bold' }
                                 },
-                                ticks: {
-                                    callback: function(value) {
-                                        return new Intl.NumberFormat('de-DE').format(value);
+                                tooltip: {
+                                    callbacks: {
+                                        title: (items) => items[0].dataset.label,
+                                        label: (context) => {
+                                            let label = context.dataset.label || '';
+                                            if (label) label += ': ';
+                                            label += new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(context.parsed.y);
+                                            return label;
+                                        }
                                     }
                                 }
                             },
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: 'LHK-Ansatz (€)',
-                                    font: { size: 14, weight: 'bold' }
+                            scales: {
+                                x: {
+                                    type: 'linear', position: 'bottom', min: 0, max: 10000,
+                                    title: { display: true, text: 'Haushaltsnetto (€)', font: { size: 14, weight: 'bold' } },
+                                    ticks: { callback: (val) => new Intl.NumberFormat('de-DE').format(val) }
                                 },
-                                ticks: {
-                                    callback: function(value) {
-                                        return new Intl.NumberFormat('de-DE').format(value);
-                                    }
+                                y: {
+                                    title: { display: true, text: 'LHK-Ansatz (€)', font: { size: 14, weight: 'bold' } },
+                                    ticks: { callback: (val) => new Intl.NumberFormat('de-DE').format(val) }
                                 }
                             }
                         }
-                    }
-                });
+                    });
+                } catch (err) {
+                    console.error("Critical error creating Chart:", err);
+                }
             }
 
             // --- PERSISTENCE & CUSTOM PROVIDERS ---
