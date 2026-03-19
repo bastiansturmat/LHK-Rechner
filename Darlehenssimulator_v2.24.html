@@ -527,6 +527,7 @@
                                         <th class="py-4 px-3 font-bold text-slate-700 border-b">Netto %</th>
                                         <th class="py-4 px-3 font-bold text-slate-700 border-b">P + 2 Kd. (Ref)</th>
                                         <th class="py-4 px-3 font-bold text-slate-700 border-b">EE + 2 Kd. (Ref)</th>
+                                        <th class="py-4 px-3 font-bold text-slate-700 border-b">Max. LHK</th>
                                         <th class="py-4 px-3 font-bold text-slate-700 border-b">Detail-Logik / Bemerkung</th>
                                         <th class="py-4 px-3 font-bold text-slate-700 border-b text-center">Aktion</th>
                                     </tr>
@@ -896,17 +897,21 @@
                 { 
                     name: "Wir (Simulator)", 
                     logic: "Standard", 
+                    maxLhk: 0,
                     calc: (isPaar, kids, net, total) => {
                         const bracket = SIMULATOR_LHK.find(b => total >= b.min && total <= b.max);
-                        return { flat: bracket ? bracket.lhk : 4000, pct: 0 };
+                        const res = bracket ? bracket.lhk : 4000;
+                        return { flat: res, pct: 0 };
                     }
                 },
                 { 
                     name: "Wir (o. Kindergeld)", 
                     logic: "Standard ohne Kindergeld", 
+                    maxLhk: 0,
                     calc: (isPaar, kids, net, total) => {
                         const bracket = SIMULATOR_LHK.find(b => net >= b.min && net <= b.max);
-                        return { flat: bracket ? bracket.lhk : 4000, pct: 0 };
+                        const res = bracket ? bracket.lhk : 4000;
+                        return { flat: res, pct: 0 };
                     }
                 },
                 { 
@@ -916,6 +921,7 @@
                     netPct: 40,
                     rates: [1200, 1800, 2100, 2400, 2700, 3000],
                     logic: "Bis 6.000€ Pauschale n. Pers, ab 6.000€ 40% v. Netto",
+                    maxLhk: 0,
                     calc: function(isPaar, kids, net, total) {
                         if (total < this.threshold) {
                             const persons = (isPaar ? 2 : 1) + kids;
@@ -936,6 +942,7 @@
                     type: "standard",
                     base: 1000, partner: 400, child: 175, netPct: 40,
                     logic: "1.P 1000, 2.P 400, Kd 175",
+                    maxLhk: 0,
                     calc: function(isPaar, kids, net, total) {
                         const flat = this.base + (isPaar ? this.partner : 0) + (kids * this.child);
                         const pct = net * (this.netPct / 100);
@@ -947,6 +954,7 @@
                     type: "standard",
                     base: 950, partner: 250, child: 300, netPct: 0,
                     logic: "Single 950, Paar 1200, Kd 300", 
+                    maxLhk: 0,
                     calc: function(isPaar, kids, net, total) {
                         const flat = this.base + (isPaar ? this.partner : 0) + (kids * this.child);
                         return { flat, pct: 0 };
@@ -957,6 +965,7 @@
                     type: "standard",
                     base: 850, partner: 480, child: 300, netPct: 40,
                     logic: "1.P 850, 2.P 480, Kd 300", 
+                    maxLhk: 0,
                     calc: function(isPaar, kids, net, total) {
                         const flat = this.base + (isPaar ? this.partner : 0) + (kids * this.child);
                         const pct = net * (this.netPct / 100);
@@ -968,6 +977,7 @@
                     type: "person_steps",
                     p1: 705, p2: 1265, p3: 1800, p4: 2330, pNext: 535, max: 3900, netPct: 30,
                     logic: "Staffel nach Personen: 1P 705, 2P 1265, 3P 1800, 4P 2330, jede weitere 535. Max 3900.", 
+                    maxLhk: 0,
                     calc: function(isPaar, kids, net, total) {
                         const persons = (isPaar ? 2 : 1) + kids;
                         let flat = 0;
@@ -988,6 +998,7 @@
                     type: "standard",
                     base: 840, partner: 360, child: 360, netPct: 0,
                     logic: "1.P 840, 2.P 360, Kd 360", 
+                    maxLhk: 0,
                     calc: function(isPaar, kids, net, total) {
                         const flat = this.base + (isPaar ? this.partner : 0) + (kids * this.child);
                         return { flat, pct: 0 };
@@ -998,6 +1009,7 @@
                     type: "standard",
                     base: 754, partner: 459, child: 358, netPct: 30,
                     logic: "1.P 754, Paar 1213, Kd 358", 
+                    maxLhk: 0,
                     calc: function(isPaar, kids, net, total) {
                         const flat = this.base + (isPaar ? this.partner : 0) + (kids * this.child);
                         const pct = net * (this.netPct / 100);
@@ -1009,6 +1021,7 @@
                     type: "standard",
                     base: 809, partner: 404, child: 275, netPct: 0,
                     logic: "min 730 max 2810", 
+                    maxLhk: 0,
                     calc: function(isPaar, kids, net, total) {
                         const flat = this.base + (isPaar ? this.partner : 0) + (kids * this.child);
                         return { flat, pct: 0 };
@@ -1019,10 +1032,11 @@
                     type: "standard",
                     base: 1300, partner: 300, child: 200, netPct: 40,
                     logic: "1300 + 300/300/200", 
+                    maxLhk: 0,
                     calc: function(isPaar, kids, net, total) {
                         const flat = this.base + (isPaar ? this.partner : 0) + (kids * this.child);
                         const pct = net * (this.netPct / 100);
-                        return { flat, pct };
+                        return { flat: this.maxLhk > 0 ? Math.min(flat, this.maxLhk) : flat, pct: this.maxLhk > 0 ? Math.min(pct, this.maxLhk) : pct };
                     }
                 }
             ];
@@ -1033,8 +1047,12 @@
             function assignCalc(bank) {
                 if (bank.type === 'standard') {
                     bank.calc = function(isPaar, kids, net, total) {
-                        const flat = (this.base || 0) + (isPaar ? (this.partner || 0) : 0) + (kids * (this.child || 0));
-                        const pct = net * ((this.netPct || 0) / 100);
+                        let flat = (this.base || 0) + (isPaar ? (this.partner || 0) : 0) + (kids * (this.child || 0));
+                        let pct = net * ((this.netPct || 0) / 100);
+                        if (this.maxLhk > 0) {
+                            flat = Math.min(flat, this.maxLhk);
+                            pct = Math.min(pct, this.maxLhk);
+                        }
                         return { flat, pct };
                     };
                 } else if (bank.type === 'person_steps') {
@@ -1046,8 +1064,12 @@
                         else if (persons === 3) flat = this.p3;
                         else if (persons === 4) flat = this.p4;
                         else flat = this.p4 + ((persons - 4) * this.pNext);
-                        if (this.max > 0 && flat > this.max) flat = this.max;
-                        const pct = net * (this.netPct / 100);
+                        
+                        let pct = net * (this.netPct / 100);
+                        if (this.maxLhk > 0) {
+                            flat = Math.min(flat, this.maxLhk);
+                            pct = Math.min(pct, this.maxLhk);
+                        }
                         return { flat, pct };
                     };
                 } else if (bank.type === 'wir_new') {
@@ -1057,9 +1079,11 @@
                             const idx = Math.min(persons - 1, this.rates.length - 1);
                             let flat = this.rates[idx];
                             if (persons > this.rates.length) flat = this.rates[this.rates.length - 1] + (persons - this.rates.length) * 300;
+                            if (this.maxLhk > 0) flat = Math.min(flat, this.maxLhk);
                             return { flat, pct: 0 };
                         } else {
-                            const pct = total * (this.netPct / 100);
+                            let pct = total * (this.netPct / 100);
+                            if (this.maxLhk > 0) pct = Math.min(pct, this.maxLhk);
                             return { flat: 0, pct };
                         }
                     };
@@ -1260,6 +1284,7 @@
                     }
 
                     const isCustom = !DEFAULT_BANK_DATA.some(d => d.name === bank.name);
+                    const maxLhkVal = bank.maxLhk > 0 ? bank.maxLhk : 'unbegrenzt';
 
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition-colors border-b border-slate-100";
@@ -1270,6 +1295,7 @@
                         <td class="p-1"><div class="readonly-cell text-center">${netStr}</div></td>
                         <td class="p-1"><div class="readonly-cell">${p2k}</div></td>
                         <td class="p-1"><div class="readonly-cell">${ee2k}</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center font-bold text-indigo-600">${maxLhkVal}</div></td>
                         <td class="p-1"><div class="readonly-cell italic text-slate-600 max-w-xs overflow-hidden text-ellipsis whitespace-nowrap" title="${bank.logic}">${bank.logic}</div></td>
                         <td class="p-1 text-center">
                             ${isCustom ? `
@@ -1560,6 +1586,11 @@
                     let html = `<div class="mb-4 bg-yellow-50 p-4 rounded-lg border border-yellow-200 text-sm text-yellow-800">
                         <span class="font-bold">Achtung:</span> Änderungen an dieser Tabelle beeinflussen direkt die Berechnung der individuellen Simulation.
                     </div>
+                    <div class="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Gesamt-Deckel (Max. LHK)</label>
+                        <input type="number" id="edit-sim-max-lhk" class="w-full p-2 border border-slate-300 rounded focus:ring-indigo-500 focus:border-indigo-500 shadow-sm" value="${bank.maxLhk || 0}">
+                        <p class="text-[11px] text-slate-500 mt-1">Gilt für den Simulator als globaler Maximalwert. 0 = unbegrenzt.</p>
+                    </div>
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-slate-100 sticky top-0">
                             <tr>
@@ -1588,6 +1619,8 @@
                     editModalSaveBtn.onclick = () => {
                         const limitInputs = document.querySelectorAll('.sim-limit-input');
                         const lhkInputs = document.querySelectorAll('.sim-lhk-input');
+                        const maxLhkInput = document.getElementById('edit-sim-max-lhk');
+                        
                         let newLhkData = [];
                         let prevMax = 0;
                         for(let i=0; i<limitInputs.length; i++) {
@@ -1601,6 +1634,7 @@
                             prevMax = max;
                         }
                         SIMULATOR_LHK = newLhkData;
+                        bank.maxLhk = parseFloat(maxLhkInput.value) || 0;
                         saveData();
                         closeEditModal();
                         updateModalViewTable(); 
@@ -1615,7 +1649,12 @@
                             { label: "3 Personen", key: "p3", type: "number" },
                             { label: "4 Personen", key: "p4", type: "number" },
                             { label: "Jede weitere Person", key: "pNext", type: "number" },
-                            { label: "Max. LHK (Cap)", key: "max", type: "number" },
+                            { label: "Pauschal-Cap (Logik-intern)", key: "max", type: "number" },
+                            { label: "Ansatz Netto (%)", key: "netPct", type: "number" }
+                        );
+                    } else if (bank.type === 'wir_new') {
+                        fields.push(
+                            { label: "Schwelle (€)", key: "threshold", type: "number" },
                             { label: "Ansatz Netto (%)", key: "netPct", type: "number" }
                         );
                     } else {
@@ -1626,6 +1665,8 @@
                             { label: "Ansatz Netto (%)", key: "netPct", type: "number" }
                         );
                     }
+                    // Global max cap for all
+                    fields.push({ label: "Maximaler LHK (Deckel)", key: "maxLhk", type: "number" });
                     fields.push({ label: "Logik / Bemerkung", key: "logic", type: "textarea" });
 
                     let html = `<div class="space-y-4">`;
