@@ -513,6 +513,12 @@
                                         </svg>
                                         Import
                                     </button>
+                                    <button id="reset-app-btn" class="flex items-center justify-center px-4 py-2 bg-red-50 text-red-700 font-semibold text-sm rounded-lg hover:bg-red-100 border border-red-200 focus:outline-none focus:ring-2 focus:ring-red-300 transition-all" title="Alle individuellen Einstellungen löschen und auf Werkszustand zurücksetzen">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                        Reset
+                                    </button>
                                     <input type="file" id="import-file" class="hidden" accept=".json">
                                 </div>
                             </div>
@@ -1171,6 +1177,7 @@
                     let s, p, p2k, ee2k, netStr;
 
                     if (bank.name === "Wir (Simulator)" || bank.name === "Wir (o. Kindergeld)") {
+                        // For Wir (Simulator) and Wir (o. Kindergeld), we reference "WIR (Simulation neu)" for display values
                         const wirNeu = BANK_DATA.find(b => b.name === "WIR (Simulation neu)");
                         if (wirNeu && wirNeu.rates) {
                             s = wirNeu.rates[0];
@@ -1194,7 +1201,7 @@
                         netStr = bank.netPct + "%";
                         p2k = bank.rates[3];
                         ee2k = bank.rates[2];
-                    } else {
+                    } else { // Standard type or banks without a specific type (like the original defaults)
                         s = bank.base || 0;
                         p = (bank.base || 0) + (bank.partner || 0);
                         p2k = (bank.base || 0) + (bank.partner || 0) + (2 * (bank.child || 0));
@@ -1321,8 +1328,8 @@
                 const colors = ['#3b82f6','#ef4444','#f97316','#84cc16','#10b981','#06b6d4','#6366f1','#d946ef','#8b5cf6','#ec4899'];
 
                 const datasets = BANK_DATA.map((bank, idx) => {
-                    // Safety check for calc function
-                    if (typeof bank.calc !== 'function') assignCalc(bank);
+                    // Safety check for calc function and ensure it's wrapped
+                    if (typeof bank.calc !== 'function' || !bank.isWrapped) assignCalc(bank);
                     
                     const data = [];
                     if (typeof bank.calc === 'function') {
@@ -1425,6 +1432,7 @@
                     customProviders: custom.map(b => {
                         const copy = { ...b };
                         delete copy.calc; // Functions can't be saved
+                        delete copy.isWrapped; // Don't save the wrapper flag
                         return copy;
                     }),
                     simulatorLhk: SIMULATOR_LHK
@@ -1439,9 +1447,9 @@
                         const data = JSON.parse(stored);
                         if (data.simulatorLhk) SIMULATOR_LHK = data.simulatorLhk;
                         if (data.customProviders) {
-                            const custom = data.customProviders;
-                            custom.forEach(b => assignCalc(b));
-                            BANK_DATA = [...DEFAULT_BANK_DATA, ...custom];
+                            const newCustom = data.customProviders;
+                            newCustom.forEach(b => assignCalc(b)); // Assign calc and wrap
+                            BANK_DATA = [...DEFAULT_BANK_DATA, ...newCustom];
                         }
                     } catch (e) {
                         console.error("Error loading data", e);
@@ -1449,6 +1457,13 @@
                 }
                 // Ensure all banks have calculations assigned (including defaults with maxLhk logic)
                 BANK_DATA.forEach(b => assignCalc(b));
+            }
+
+            function resetApp() {
+                if (confirm("Möchten Sie wirklich alle individuellen Anbieter und Einstellungen löschen? Die Anwendung wird in den Werkszustand zurückversetzt.")) {
+                    localStorage.removeItem('lhk_simulator_data');
+                    window.location.reload();
+                }
             }
 
             function exportData() {
@@ -1459,6 +1474,7 @@
                     customProviders: custom.map(b => {
                         const copy = { ...b };
                         delete copy.calc;
+                        delete copy.isWrapped; // Don't export the wrapper flag
                         return copy;
                     }),
                     simulatorLhk: SIMULATOR_LHK
@@ -1555,7 +1571,9 @@
                             prevMax = max;
                         }
                         SIMULATOR_LHK = newLhkData;
-                        bank.maxLhk = parseFloat(maxLhkInput.value) || 0;
+                        // Update maxLhk for the "Wir (Simulator)" bank object
+                        const simBank = BANK_DATA.find(b => b.name === "Wir (Simulator)");
+                        if (simBank) simBank.maxLhk = parseFloat(maxLhkInput.value) || 0;
                         saveData();
                         closeEditModal();
                         updateModalViewTable(); 
@@ -1576,9 +1594,13 @@
                     } else if (bank.type === 'wir_new') {
                         fields.push(
                             { label: "Schwelle (€)", key: "threshold", type: "number" },
-                            { label: "Ansatz Netto (%)", key: "netPct", type: "number" }
+                            { label: "Ansatz Netto (%)", key: "netPct", type: "number" },
+                            { label: "Basis Single (LHK)", key: "rate0", type: "number" },
+                            { label: "Basis Paar (LHK)", key: "rate1", type: "number" },
+                            { label: "Ref EE+2Kd (LHK)", key: "rate2", type: "number" }, // Corrected order for EE+2Kd
+                            { label: "Ref P+2Kd (LHK)", key: "rate3", type: "number" }
                         );
-                    } else {
+                    } else { // Standard type or banks without a specific type
                         fields.push(
                             { label: "Single (Basis)", key: "base", type: "number" },
                             { label: "2. Person (Aufschlag)", key: "partner", type: "number" },
@@ -1602,14 +1624,22 @@
                             <select id="edit-provider-type" class="w-full p-2 border border-slate-300 rounded focus:ring-indigo-500 focus:border-indigo-500">
                                 <option value="standard" ${bank.type === 'standard' ? 'selected' : ''}>Standard (Basis + Aufschläge)</option>
                                 <option value="person_steps" ${bank.type === 'person_steps' ? 'selected' : ''}>Staffel (nach Personenanzahl)</option>
+                                <option value="wir_new" ${bank.type === 'wir_new' ? 'selected' : ''}>WIR (Neu)</option>
                             </select>
                         </div>`;
                     }
 
                     html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
                     fields.forEach(f => {
-                         const val = bank[f.key] !== undefined ? bank[f.key] : "";
-                         const colSpan = f.type === 'textarea' ? 'md:col-span-2' : 'md:col-span-1';
+                          let val = "";
+                          if (bank.type === 'wir_new' && f.key.startsWith('rate')) {
+                              const idx = parseInt(f.key.replace('rate', ''));
+                              val = (bank.rates && bank.rates[idx] !== undefined) ? bank.rates[idx] : 0;
+                          } else {
+                              val = bank[f.key] !== undefined ? bank[f.key] : "";
+                          }
+                          
+                          const colSpan = f.type === 'textarea' ? 'md:col-span-2' : 'md:col-span-1';
                          if (f.type === 'textarea') {
                              html += `<div class="${colSpan}">
                                 <label class="block text-sm font-medium text-slate-700 mb-1">${f.label}</label>
@@ -1644,7 +1674,15 @@
                             const key = input.getAttribute('data-key');
                             let val = input.value;
                             if (key !== 'logic') val = parseFloat(val) || 0;
-                            bank[key] = val;
+                            
+                            // Map rate0-3 back to rates array for wir_new
+                            if (bank.type === 'wir_new' && key.startsWith('rate')) {
+                                const idx = parseInt(key.replace('rate', ''));
+                                if (!bank.rates) bank.rates = [0,0,0,0,0,0];
+                                bank.rates[idx] = val;
+                            } else {
+                                bank[key] = val;
+                            }
                         });
                         delete bank.isNew;
                         if (isNew) BANK_DATA.push(bank);
@@ -1823,9 +1861,17 @@
 
             // --- INIT ---
             loadData();
-            updateMarketTable();
-            updateLhkValuesTable();
-            updateModalViewTable();
+            
+            // Trigger initial render with slight delay to avoid DOM racing
+            setTimeout(() => {
+                updateMarketTable();
+                updateLhkValuesTable();
+                updateModalViewTable();
+                generateChart(); // Initial chart
+            }, 50);
+
+            const resetAppBtn = document.getElementById('reset-app-btn');
+            if (resetAppBtn) resetAppBtn.onclick = resetApp;
 
             editProviderBtn.onclick = openEditModal;
             copyProviderBtn.onclick = () => {
