@@ -448,44 +448,48 @@
                         </div>
                         
                         <!-- Maintenance Controls -->
-                        <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-8">
-                            <h3 class="text-lg font-bold text-slate-700 mb-4">Anbieter bearbeiten</h3>
-                            <div class="flex flex-col md:flex-row gap-4 items-end">
-                                <div class="flex-grow w-full">
-                                    <label class="block text-sm font-semibold text-slate-600 mb-1">Anbieter auswählen</label>
-                                    <select id="provider-select" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-lg"><option value="Wir (Simulator)">Wir (Simulator)</option><option value="WIR (Simulation neu)">WIR (Simulation neu)</option><option value="Allianz">Allianz</option><option value="Axa">Axa</option><option value="Signal">Signal</option><option value="Coba">Coba</option><option value="Deuba">Deuba</option><option value="DKB">DKB</option><option value="ING">ING</option><option value="PSD RR">PSD RR</option></select>
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 mb-8 shadow-sm">
+                            <div class="flex flex-col lg:flex-row gap-6 items-start lg:items-center">
+                                <div class="w-full lg:w-1/3">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Anbieter auswählen</label>
+                                    <select id="provider-select" class="w-full p-2.5 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-all bg-slate-50 hover:bg-white">
+                                        <!-- Options injected via JS -->
+                                    </select>
+                                    <p class="mt-2 text-xs text-slate-400">Wählen Sie einen Anbieter zur Bearbeitung oder zum Kopieren aus.</p>
                                 </div>
-                                <div class="flex flex-wrap gap-4 w-full">
-                                    <button id="edit-provider-btn" class="flex-1 bg-indigo-600 text-white font-bold text-lg py-3 px-6 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors shadow-sm flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                
+                                <div class="w-full lg:flex-1 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                    <button id="edit-provider-btn" class="flex items-center justify-center px-4 py-2 bg-indigo-600 text-white font-semibold text-sm rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 transition-all shadow-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                         </svg>
                                         Bearbeiten
                                     </button>
-                                    <button id="copy-provider-btn" class="flex-1 bg-teal-600 text-white font-bold text-lg py-3 px-6 rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors shadow-sm flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    
+                                    <button id="copy-provider-btn" class="flex items-center justify-center px-4 py-2 bg-teal-600 text-white font-semibold text-sm rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-1 transition-all shadow-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path>
                                         </svg>
-                                        Kopieren &amp; Neu
+                                        Kopieren
                                     </button>
-                                    <button id="export-json-btn" class="flex-1 bg-slate-700 text-white font-bold text-lg py-3 px-6 rounded-lg hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 transition-colors shadow-sm flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    
+                                    <button id="export-json-btn" class="flex items-center justify-center px-4 py-2 bg-slate-100 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-200 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-all">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                         </svg>
-                                        Export (JSON)
+                                        Export
                                     </button>
-                                    <button id="import-json-btn" class="flex-1 bg-slate-700 text-white font-bold text-lg py-3 px-6 rounded-lg hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 transition-colors shadow-sm flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    
+                                    <button id="import-json-btn" class="flex items-center justify-center px-4 py-2 bg-slate-100 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-200 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-all">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"></path>
                                         </svg>
-                                        Import (JSON)
+                                        Import
                                     </button>
                                     <input type="file" id="import-file" class="hidden" accept=".json">
                                 </div>
                             </div>
-                            <p class="text-sm text-slate-500 mt-2">Wählen Sie einen Anbieter aus, um dessen spezifische Werte und Logik im Detail anzupassen.</p>
                         </div>
-
                         <div class="market-table-container">
                             <table class="w-full text-left text-sm border-collapse market-table">
                                 <thead class="bg-slate-50">
