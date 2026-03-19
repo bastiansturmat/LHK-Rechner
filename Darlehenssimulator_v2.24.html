@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="de"><head>
+  <script type="module" src="/@vite/client"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darlehenssimulator für Familien 2.24</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom Scrollbar for a professional app look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+            border: 2px solid #fff; /* Padding effect */
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .tab-active {
+            border-color: #4f46e5;
+            color: #4f46e5;
+            background-color: #eef2ff;
+        }
+        .tab-inactive {
+            border-color: transparent;
+            color: #475569;
+        }
+        .tab-inactive:hover {
+            border-color: #cbd5e1;
+            color: #334155;
+        }
+
+        .modal {
+            transition: opacity 0.3s ease;
+        }
+        
+        /* Table container setup for unified frame */
+        .market-table-container {
+            position: relative;
+            overflow-x: auto; /* Horizontal scroll handled here */
+            /* overflow-y handled by main content area to prevent nested scrolls */
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+            background-color: #fff;
+            min-width: 100%;
+        }
+
+        /* Sticky headers - note: may only stick within container context */
+        .market-table th {
+            background-color: #f8fafc; 
+            white-space: nowrap;
+        }
+
+        /* Editable Cell Styling */
+        .editable-cell {
+            width: 100%;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            transition: all 0.2s;
+            color: inherit;
+            font-weight: inherit;
+            min-width: 80px;
+        }
+        .editable-cell:hover {
+            border-color: #cbd5e1;
+            background: rgba(255,255,255,0.7);
+        }
+        .editable-cell:focus {
+            outline: none;
+            border-color: #4f46e5;
+            background: #fff;
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+        }
+
+        /* Readonly cell styling for overview */
+        .readonly-cell {
+            padding: 0.75rem 0.5rem;
+            color: #334155;
+        }
+        
+        .col-anbieter { min-width: 120px; font-weight: bold; position: sticky; left: 0; background-color: #fff; z-index: 10; }
+        .col-calc { min-width: 130px; }
+        .col-logic { min-width: 250px; }
+        
+        td:first-child, th:first-child {
+            position: sticky;
+            left: 0;
+            background-color: #ffffff;
+            z-index: 15;
+            box-shadow: 1px 0 2px rgba(0,0,0,0.05);
+        }
+        th:first-child {
+            z-index: 25;
+            background-color: #f8fafc;
+        }
+        tr:hover td:first-child {
+            background-color: #eef2ff;
+        }
+
+        .text-field-wide { min-width: 200px; }
+        .text-field-medium { min-width: 140px; }
+    </style>
+<script src="/_aistudio-iframe.js"></script><script src="https://cdn.jsdelivr.net/npm/html2canvas-pro"></script><style>.aistudio-hover-highlight { box-shadow: inset 0 0 0 0.5px white, inset 0 0 0 1.5px rgba(128,128,128,0.6) !important; }.aistudio-active-highlight { box-shadow: inset 0 0 0 0.5px white, inset 0 0 0 1.5px #87a9ff !important; }#aistudio-focus-mode-tag { position: absolute; display: none; background: #87a9ff; border-radius: 4px; border: 0.5px solid white; z-index: 10000; text-transform: lowercase; padding: 2px 4px; color: #32302c; font-family: Inter, sans-serif; font-size: 12px; font-style: normal; font-weight: 400; line-height: 16px; pointer-events: none; }#aistudio-hover-mode-tag { position: absolute; display: none; background: rgba(128,128,128,0.6); border-radius: 4px; border: 0.5px solid white; z-index: 10000; text-transform: lowercase; padding: 2px 4px; color: white; font-family: Inter, sans-serif; font-size: 12px; font-style: normal; font-weight: 400; line-height: 16px; pointer-events: none; }</style><style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.right-0{right:0px}.right-3{right:0.75rem}.top-0{top:0px}.top-1\/2{top:50%}.z-0{z-index:0}.z-20{z-index:20}.z-50{z-index:50}.m-4{margin:1rem}.my-4{margin-top:1rem;margin-bottom:1rem}.-mb-px{margin-bottom:-1px}.mb-1{margin-bottom:0.25rem}.mb-10{margin-bottom:2.5rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.mb-8{margin-bottom:2rem}.mr-2{margin-right:0.5rem}.mt-0\.5{margin-top:0.125rem}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.mt-4{margin-top:1rem}.mt-6{margin-top:1.5rem}.mt-8{margin-top:2rem}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-\[600px\]{height:600px}.h-full{height:100%}.h-screen{height:100vh}.max-h-\[90vh\]{max-height:90vh}.max-h-\[95vh\]{max-height:95vh}.min-h-full{min-height:100%}.min-h-screen{min-height:100vh}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-full{width:100%}.max-w-2xl{max-width:42rem}.max-w-\[95\%\]{max-width:95%}.max-w-md{max-width:28rem}.flex-1{flex:1 1 0%}.flex-none{flex:none}.flex-shrink-0{flex-shrink:0}.flex-grow{flex-grow:1}.border-collapse{border-collapse:collapse}.-translate-y-1\/2{--tw-translate-y:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.scale-95{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-start{align-items:flex-start}.items-end{align-items:flex-end}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.gap-x-8{column-gap:2rem}.gap-y-6{row-gap:1.5rem}.space-x-2 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(0.5rem * var(--tw-space-x-reverse));margin-left:calc(0.5rem * calc(1 - var(--tw-space-x-reverse)))}.space-x-3 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(0.75rem * var(--tw-space-x-reverse));margin-left:calc(0.75rem * calc(1 - var(--tw-space-x-reverse)))}.space-x-6 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(1.5rem * var(--tw-space-x-reverse));margin-left:calc(1.5rem * calc(1 - var(--tw-space-x-reverse)))}.space-y-8 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2rem * var(--tw-space-y-reverse))}.divide-y > :not([hidden]) ~ :not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px * calc(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px * var(--tw-divide-y-reverse))}.divide-slate-100 > :not([hidden]) ~ :not([hidden]){--tw-divide-opacity:1;border-color:rgb(241 245 249 / var(--tw-divide-opacity, 1))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.whitespace-nowrap{white-space:nowrap}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.rounded-md{border-radius:0.375rem}.border{border-width:1px}.border-2{border-width:2px}.border-x{border-left-width:1px;border-right-width:1px}.border-b{border-bottom-width:1px}.border-b-2{border-bottom-width:2px}.border-l{border-left-width:1px}.border-t{border-top-width:1px}.border-blue-100{--tw-border-opacity:1;border-color:rgb(219 234 254 / var(--tw-border-opacity, 1))}.border-blue-200{--tw-border-opacity:1;border-color:rgb(191 219 254 / var(--tw-border-opacity, 1))}.border-green-200{--tw-border-opacity:1;border-color:rgb(187 247 208 / var(--tw-border-opacity, 1))}.border-indigo-100{--tw-border-opacity:1;border-color:rgb(224 231 255 / var(--tw-border-opacity, 1))}.border-indigo-200{--tw-border-opacity:1;border-color:rgb(199 210 254 / var(--tw-border-opacity, 1))}.border-indigo-600{--tw-border-opacity:1;border-color:rgb(79 70 229 / var(--tw-border-opacity, 1))}.border-red-300{--tw-border-opacity:1;border-color:rgb(252 165 165 / var(--tw-border-opacity, 1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-300{--tw-border-opacity:1;border-color:rgb(203 213 225 / var(--tw-border-opacity, 1))}.border-green-300{--tw-border-opacity:1;border-color:rgb(134 239 172 / var(--tw-border-opacity, 1))}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255 / var(--tw-bg-opacity, 1))}.bg-green-50{--tw-bg-opacity:1;background-color:rgb(240 253 244 / var(--tw-bg-opacity, 1))}.bg-indigo-100{--tw-bg-opacity:1;background-color:rgb(224 231 255 / var(--tw-bg-opacity, 1))}.bg-indigo-50{--tw-bg-opacity:1;background-color:rgb(238 242 255 / var(--tw-bg-opacity, 1))}.bg-indigo-600{--tw-bg-opacity:1;background-color:rgb(79 70 229 / var(--tw-bg-opacity, 1))}.bg-red-100{--tw-bg-opacity:1;background-color:rgb(254 226 226 / var(--tw-bg-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-50\/50{background-color:rgb(248 250 252 / 0.5)}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-green-100{--tw-bg-opacity:1;background-color:rgb(220 252 231 / var(--tw-bg-opacity, 1))}.bg-opacity-75{--tw-bg-opacity:0.75}.p-1{padding:0.25rem}.p-2{padding:0.5rem}.p-3{padding:0.75rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.p-8{padding:2rem}.px-1{padding-left:0.25rem;padding-right:0.25rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.px-8{padding-left:2rem;padding-right:2rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.pb-2{padding-bottom:0.5rem}.pb-4{padding-bottom:1rem}.pl-3{padding-left:0.75rem}.pl-4{padding-left:1rem}.pr-10{padding-right:2.5rem}.pr-8{padding-right:2rem}.pt-2{padding-top:0.5rem}.pt-4{padding-top:1rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.font-sans{font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-5xl{font-size:3rem;line-height:1}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.tracking-tight{letter-spacing:-0.025em}.tracking-wide{letter-spacing:0.025em}.text-blue-800{--tw-text-opacity:1;color:rgb(30 64 175 / var(--tw-text-opacity, 1))}.text-green-600{--tw-text-opacity:1;color:rgb(22 163 74 / var(--tw-text-opacity, 1))}.text-indigo-600{--tw-text-opacity:1;color:rgb(79 70 229 / var(--tw-text-opacity, 1))}.text-indigo-700{--tw-text-opacity:1;color:rgb(67 56 202 / var(--tw-text-opacity, 1))}.text-indigo-800{--tw-text-opacity:1;color:rgb(55 48 163 / var(--tw-text-opacity, 1))}.text-indigo-900{--tw-text-opacity:1;color:rgb(49 46 129 / var(--tw-text-opacity, 1))}.text-red-800{--tw-text-opacity:1;color:rgb(153 27 27 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-green-700{--tw-text-opacity:1;color:rgb(21 128 61 / var(--tw-text-opacity, 1))}.opacity-0{opacity:0}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-opacity{transition-property:opacity;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-150{transition-duration:150ms}.duration-200{transition-duration:200ms}.duration-300{transition-duration:300ms}.ease-in-out{transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1)}.hover\:-translate-y-0\.5:hover{--tw-translate-y:-0.125rem;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:bg-indigo-200:hover{--tw-bg-opacity:1;background-color:rgb(199 210 254 / var(--tw-bg-opacity, 1))}.hover\:bg-indigo-50:hover{--tw-bg-opacity:1;background-color:rgb(238 242 255 / var(--tw-bg-opacity, 1))}.hover\:bg-indigo-700:hover{--tw-bg-opacity:1;background-color:rgb(67 56 202 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-50:hover{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.hover\:text-indigo-800:hover{--tw-text-opacity:1;color:rgb(55 48 163 / var(--tw-text-opacity, 1))}.hover\:text-slate-800:hover{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.hover\:shadow-lg:hover{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.focus\:border-indigo-500:focus{--tw-border-opacity:1;border-color:rgb(99 102 241 / var(--tw-border-opacity, 1))}.focus\:underline:focus{-webkit-text-decoration-line:underline;text-decoration-line:underline}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-4:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-indigo-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(99 102 241 / var(--tw-ring-opacity, 1))}.focus\:ring-indigo-500\/50:focus{--tw-ring-color:rgb(99 102 241 / 0.5)}.focus\:ring-slate-400:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(148 163 184 / var(--tw-ring-opacity, 1))}.focus\:ring-offset-2:focus{--tw-ring-offset-width:2px}@media (min-width: 640px){.sm\:col-span-2{grid-column:span 2 / span 2}.sm\:w-auto{width:auto}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}}@media (min-width: 768px){.md\:col-span-1{grid-column:span 1 / span 1}.md\:flex{display:flex}.md\:w-auto{width:auto}.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.md\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.md\:flex-row{flex-direction:row}.md\:p-8{padding:2rem}.md\:px-8{padding-left:2rem;padding-right:2rem}.md\:text-4xl{font-size:2.25rem;line-height:2.5rem}.md\:text-6xl{font-size:3.75rem;line-height:1}}@media (min-width: 1024px){.lg\:max-w-7xl{max-width:80rem}}</style></head>
+<body class="bg-slate-100 min-h-screen w-full flex items-center justify-center p-4 font-sans h-screen overflow-hidden">
+    <main class="w-full max-w-[95%] lg:max-w-7xl flex flex-col h-full max-h-[95vh]">
+        <!-- Header outside the card -->
+        <header class="text-center mb-4 flex-none relative">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-800">
+                Darlehenssimulator für Familien 2.24
+            </h1>
+            <p class="text-slate-600 mt-1 text-base">
+                Simulation der Darlehenskapazität &amp; Marktvergleich der Banken-LHK.
+            </p>
+            <button id="download-app-btn" class="absolute top-0 right-0 hidden md:flex bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-4 py-2 rounded-lg font-medium text-sm items-center transition-colors shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                App als HTML speichern
+            </button>
+        </header>
+
+        <!-- Main Card with Fixed/Flex Height -->
+        <div class="bg-white rounded-2xl shadow-xl flex flex-col flex-1 overflow-hidden border border-slate-200">
+            <!-- Fixed Tabs Navigation -->
+            <div class="flex-none border-b border-slate-200 px-4 md:px-8 pt-2 bg-white z-20">
+                <nav class="-mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs">
+                    <button id="tab-individual" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-base transition-colors duration-200 focus:outline-none tab-inactive">
+                        Individuelle Simulation
+                    </button>
+                    <button id="tab-matrix" class="tab-inactive whitespace-nowrap py-4 px-1 border-b-2 font-medium text-base transition-colors duration-200 focus:outline-none">
+                        Übersichtsmatrix
+                    </button>
+                    <button id="tab-market" class="tab-inactive whitespace-nowrap py-4 px-1 border-b-2 font-medium text-base transition-colors duration-200 focus:outline-none">
+                        Banken-LHK
+                    </button>
+                    <button id="tab-chart" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-base transition-colors duration-200 focus:outline-none tab-active">
+                        Grafische Auswertung
+                    </button>
+                    <button id="tab-lhk-values" class="tab-inactive whitespace-nowrap py-4 px-1 border-b-2 font-medium text-base transition-colors duration-200 focus:outline-none">
+                        LHK-Werte
+                    </button>
+                    <button id="tab-bonitaet" class="tab-inactive whitespace-nowrap py-4 px-1 border-b-2 font-medium text-base transition-colors duration-200 focus:outline-none">
+                        Einnahmen &amp; Bonität
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Scrollable Content Area -->
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar bg-white relative">
+                
+                <!-- Tab Content: Individual -->
+                <div id="content-individual" class="min-h-full hidden">
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mb-8">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="income" class="block text-lg font-medium text-slate-700">
+                                    Haushaltseinkommen
+                                </label>
+                                <button id="show-table-btn" class="text-sm font-medium text-indigo-600 hover:text-indigo-800 focus:outline-none focus:underline">
+                                    LHK-Tabelle
+                                </button>
+                            </div>
+                            <div class="relative">
+                                <input type="text" id="income" placeholder="z.B. 3.500" class="w-full pl-4 pr-10 py-3 text-lg border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out" inputmode="numeric">
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">€</span>
+                            </div>
+                        </div>
+                         <div>
+                            <label for="children" class="block text-lg font-medium text-slate-700 mb-2">Anzahl der Kinder</label>
+                            <select id="children" class="w-full p-3 text-lg border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+                                <option value="0">0</option>
+                                <option value="1" selected="">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="interest" class="block text-lg font-medium text-slate-700 mb-2">Zinssatz (p.a.)</label>
+                             <div class="relative">
+                                <input type="text" id="interest" value="4,0" class="w-full pl-4 pr-10 py-3 text-lg border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out" inputmode="decimal">
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">%</span>
+                            </div>
+                        </div>
+                         <div>
+                            <label for="repayment" class="block text-lg font-medium text-slate-700 mb-2">Anf. Tilgung (p.a.)</label>
+                             <div class="relative">
+                                <input type="text" id="repayment" value="2,0" class="w-full pl-4 pr-10 py-3 text-lg border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out" inputmode="decimal">
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 mb-10">
+                        <button id="calculate-btn" class="w-full bg-indigo-600 text-white font-bold text-lg py-4 px-6 rounded-xl hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/50 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                            Berechnen
+                        </button>
+                    </div>
+                    
+                    <div id="error-message" class="hidden mt-6 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg"></div>
+
+                    <div id="result-container" class="hidden space-y-8 animate-fade-in">
+                        <h3 class="text-2xl font-bold text-slate-800 text-center border-b pb-4">Ergebnis-Übersicht</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-center">
+                            <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                                <span class="text-sm text-slate-500 block mb-1">Gesamteinkommen inkl. Kindergeld</span>
+                                <span id="result-total-income" class="text-2xl font-bold text-slate-700"></span>
+                            </div>
+                            <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                                <span class="text-sm text-slate-500 block mb-1">LHK-Pauschale (Simulator-Standard)</span>
+                                <span id="result-lhk" class="text-2xl font-bold text-slate-700"></span>
+                            </div>
+                             <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 sm:col-span-2 shadow-sm">
+                                <span class="text-sm text-slate-500 block mb-1">Freie Rate p.M.</span>
+                                <span id="result-rate" class="text-3xl font-bold text-green-600"></span>
+                            </div>
+                        </div>
+                        <div class="text-center bg-indigo-50 p-8 rounded-xl border-2 border-indigo-200 shadow-inner">
+                            <p class="text-lg text-indigo-800 font-medium">Maximal möglicher Darlehensbetrag:</p>
+                            <p id="result-loan" class="text-5xl md:text-6xl font-bold text-indigo-600 my-4 tracking-tight"></p>
+                        </div>
+                    </div>
+                     <div class="mt-8 text-xs text-slate-400 text-center">
+                        <p>Basis: Gesetzliche Kindergeldsätze (255 € je Kind).</p>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Matrix -->
+                <div id="content-matrix" class="hidden min-h-full">
+                     <p class="mb-6 text-slate-600">
+                        Übersicht der Darlehenssummen für verschiedene Einkommen und Kinderanzahl.
+                    </p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 bg-slate-50 p-6 rounded-xl border border-slate-200">
+                        <div>
+                            <label for="matrix-interest" class="block text-sm font-medium text-slate-700 mb-1">Zinssatz (p.a.)</label>
+                            <div class="relative">
+                                <input type="text" id="matrix-interest" value="4,0" class="w-full pl-3 pr-8 py-2 text-base border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500" inputmode="decimal">
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">%</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="matrix-repayment" class="block text-sm font-medium text-slate-700 mb-1">Anf. Tilgung (p.a.)</label>
+                            <div class="relative">
+                                <input type="text" id="matrix-repayment" value="2,0" class="w-full pl-3 pr-8 py-2 text-base border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500" inputmode="decimal">
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="matrix-container" class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm"></div>
+                     <div class="mt-4 text-xs text-slate-400 text-right">
+                        <p>Basis: Gesetzliche Kindergeldsätze (255 € je Kind).</p>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Market Comparison -->
+                <div id="content-market" class="hidden min-h-full">
+                    <div class="space-y-8">
+                        <!-- INTERACTIVE LHK CALCULATOR HEADER -->
+                        <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-6 shadow-sm sticky top-0 z-0">
+                            <h3 class="text-xl font-bold text-indigo-900 mb-4 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                </svg>
+                                Individueller LHK-Vergleichsrechner
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                <div class="md:col-span-1">
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">Haushaltsnetto (€)</label>
+                                    <input type="text" id="market-income" placeholder="z.B. 4.000" class="w-full p-2 border-2 border-slate-200 rounded-lg focus:border-indigo-500 focus:outline-none font-bold text-lg">
+                                </div>
+                                <div class="md:col-span-1">
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">Haushaltsstatus</label>
+                                    <div class="flex space-x-2">
+                                        <button id="market-single" class="flex-1 py-2 px-2 rounded-lg border-2 border-indigo-600 bg-indigo-600 text-white font-bold transition-all text-sm">Single</button>
+                                        <button id="market-couple" class="flex-1 py-2 px-2 rounded-lg border-2 border-slate-200 bg-white text-slate-600 font-bold transition-all text-sm">Paar</button>
+                                    </div>
+                                </div>
+                                <div class="md:col-span-1">
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">Anzahl Kinder</label>
+                                    <select id="market-children" class="w-full p-2 border-2 border-slate-200 rounded-lg focus:border-indigo-500 focus:outline-none font-bold text-lg">
+                                        <option value="0">0 Kinder</option>
+                                        <option value="1">1 Kind</option>
+                                        <option value="2" selected="">2 Kinder</option>
+                                        <option value="3">3 Kinder</option>
+                                        <option value="4">4 Kinder</option>
+                                    </select>
+                                </div>
+                                 <div class="md:col-span-1 flex flex-col justify-end">
+                                    <p class="text-xs text-slate-500 mb-1">Gesamtinkommen (inkl. KG):</p>
+                                    <div class="p-2 bg-white rounded-lg border border-indigo-100 flex items-center justify-between shadow-sm">
+                                        <span id="market-total-display" class="text-lg font-extrabold text-indigo-600">510&nbsp;€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SECTION 1: LHK Comparison -->
+                        <section>
+                            <div class="flex items-center space-x-2 mb-4 pb-2 border-b border-slate-100">
+                                <h2 class="text-2xl font-bold text-slate-800">Vergleich der LHK-Ansätze</h2>
+                            </div>
+                            <div class="market-table-container">
+                                <table class="w-full text-left text-sm border-collapse market-table" id="table-bank-lhk">
+                                    <thead class="bg-slate-50">
+                                        <tr>
+                                            <th class="py-4 px-3 font-bold text-slate-700 border-b col-anbieter shadow-sm">Anbieter</th>
+                                            <th class="py-4 px-3 font-bold text-slate-700 border-b bg-green-50 border-l border-green-200 col-calc">LHK (Pausch.)</th>
+                                            <th class="py-4 px-3 font-bold text-slate-700 border-b bg-blue-50 border-x border-blue-200 col-calc">LHK (%)</th>
+                                            <th class="py-4 px-3 font-bold text-slate-700 border-b col-logic">Logik-Kurzform</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100" id="bank-lhk-body"><tr class="hover:bg-indigo-50 transition-colors">
+                        <td class="p-1"><div class="readonly-cell font-bold">Wir (Simulator)</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-green-100 text-green-700 font-bold border border-green-300 shadow-sm">1.200&nbsp;€</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-slate-50 text-slate-400 border border-slate-100">-</div></td>
+                        <td class="p-1"><div class="readonly-cell text-sm text-slate-600">Tabellenwert (Einkommen: 510&nbsp;€)</div></td>
+                    </tr><tr class="hover:bg-indigo-50 transition-colors">
+                        <td class="p-1"><div class="readonly-cell font-bold">Wir (o. Kindergeld)</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-green-100 text-green-700 font-bold border border-green-300 shadow-sm">1.200&nbsp;€</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-slate-50 text-slate-400 border border-slate-100">-</div></td>
+                        <td class="p-1"><div class="readonly-cell text-sm text-slate-600">Tabellenwert (Einkommen ohne KG: 0&nbsp;€)</div></td>
+                    </tr><tr class="hover:bg-indigo-50 transition-colors">
+                        <td class="p-1"><div class="readonly-cell font-bold">WIR (Simulation neu)</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-green-100 text-green-700 font-bold border border-green-300 shadow-sm">2.400&nbsp;€</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-slate-50 text-slate-400 border border-slate-100">-</div></td>
+                        <td class="p-1"><div class="readonly-cell text-sm text-slate-600">Pauschale für 4 Pers. (&lt; 6.000&nbsp;€)</div></td>
+                    </tr><tr class="hover:bg-indigo-50 transition-colors">
+                        <td class="p-1"><div class="readonly-cell font-bold">Allianz</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-green-100 text-green-700 font-bold border border-green-300 shadow-sm">1.750&nbsp;€</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-slate-50 text-slate-400 border border-slate-100">-</div></td>
+                        <td class="p-1"><div class="readonly-cell text-sm text-slate-600">1.000&nbsp;€ (Basis) + 400&nbsp;€ (Partner) + 2x175&nbsp;€ (Kind)</div></td>
+                    </tr><tr class="hover:bg-indigo-50 transition-colors">
+                        <td class="p-1"><div class="readonly-cell font-bold">Axa</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-green-100 text-green-700 font-bold border border-green-300 shadow-sm">1.800&nbsp;€</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-slate-50 text-slate-400 border border-slate-100">-</div></td>
+                        <td class="p-1"><div class="readonly-cell text-sm text-slate-600">950&nbsp;€ (Basis) + 250&nbsp;€ (Partner) + 2x300&nbsp;€ (Kind)</div></td>
+                    </tr><tr class="hover:bg-indigo-50 transition-colors">
+                        <td class="p-1"><div class="readonly-cell font-bold">Signal</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-green-100 text-green-700 font-bold border border-green-300 shadow-sm">1.930&nbsp;€</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-slate-50 text-slate-400 border border-slate-100">-</div></td>
+                        <td class="p-1"><div class="readonly-cell text-sm text-slate-600">850&nbsp;€ (Basis) + 480&nbsp;€ (Partner) + 2x300&nbsp;€ (Kind)</div></td>
+                    </tr><tr class="hover:bg-indigo-50 transition-colors">
+                        <td class="p-1"><div class="readonly-cell font-bold">Coba</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-green-100 text-green-700 font-bold border border-green-300 shadow-sm">2.330&nbsp;€</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-slate-50 text-slate-400 border border-slate-100">-</div></td>
+                        <td class="p-1"><div class="readonly-cell text-sm text-slate-600">4 Personen: 2.330&nbsp;€</div></td>
+                    </tr><tr class="hover:bg-indigo-50 transition-colors">
+                        <td class="p-1"><div class="readonly-cell font-bold">Deuba</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-green-100 text-green-700 font-bold border border-green-300 shadow-sm">1.920&nbsp;€</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-slate-50 text-slate-400 border border-slate-100">-</div></td>
+                        <td class="p-1"><div class="readonly-cell text-sm text-slate-600">840&nbsp;€ (Basis) + 360&nbsp;€ (Partner) + 2x360&nbsp;€ (Kind)</div></td>
+                    </tr><tr class="hover:bg-indigo-50 transition-colors">
+                        <td class="p-1"><div class="readonly-cell font-bold">DKB</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-green-100 text-green-700 font-bold border border-green-300 shadow-sm">1.929&nbsp;€</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-slate-50 text-slate-400 border border-slate-100">-</div></td>
+                        <td class="p-1"><div class="readonly-cell text-sm text-slate-600">754&nbsp;€ (Basis) + 459&nbsp;€ (Partner) + 2x358&nbsp;€ (Kind)</div></td>
+                    </tr><tr class="hover:bg-indigo-50 transition-colors">
+                        <td class="p-1"><div class="readonly-cell font-bold">ING</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-green-100 text-green-700 font-bold border border-green-300 shadow-sm">1.763&nbsp;€</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-slate-50 text-slate-400 border border-slate-100">-</div></td>
+                        <td class="p-1"><div class="readonly-cell text-sm text-slate-600">809&nbsp;€ (Basis) + 404&nbsp;€ (Partner) + 2x275&nbsp;€ (Kind)</div></td>
+                    </tr><tr class="hover:bg-indigo-50 transition-colors">
+                        <td class="p-1"><div class="readonly-cell font-bold">PSD RR</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-green-100 text-green-700 font-bold border border-green-300 shadow-sm">2.000&nbsp;€</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md bg-slate-50 text-slate-400 border border-slate-100">-</div></td>
+                        <td class="p-1"><div class="readonly-cell text-sm text-slate-600">1.300&nbsp;€ (Basis) + 300&nbsp;€ (Partner) + 2x200&nbsp;€ (Kind)</div></td>
+                    </tr></tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Chart -->
+                <div id="content-chart" class="min-h-full">
+                    <section>
+                        <div class="flex items-center space-x-2 mb-6 border-b pb-2 border-slate-100">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+                            </svg>
+                            <h2 class="text-2xl font-bold text-slate-800">Grafische Auswertung (LHK-Verlauf)</h2>
+                        </div>
+                        
+                        <!-- CHART CONTROLS -->
+                        <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-6 shadow-sm mb-6">
+                            <h3 class="text-sm font-bold text-indigo-800 uppercase tracking-wide mb-3">Parameter anpassen</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">Haushaltsstatus</label>
+                                    <div class="flex space-x-2">
+                                        <button id="chart-single" class="flex-1 py-2 px-2 rounded-lg border-2 border-slate-200 bg-white text-slate-600 font-bold transition-all text-sm hover:bg-slate-50">Single</button>
+                                        <button id="chart-couple" class="flex-1 py-2 px-2 rounded-lg border-2 border-indigo-600 bg-indigo-600 text-white font-bold transition-all text-sm shadow-sm">Paar</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">Anzahl Kinder</label>
+                                    <select id="chart-children" class="w-full p-2 border-2 border-slate-200 rounded-lg focus:border-indigo-500 focus:outline-none font-bold text-lg">
+                                        <option value="0">0 Kinder</option>
+                                        <option value="1">1 Kind</option>
+                                        <option value="2" selected="">2 Kinder</option>
+                                        <option value="3">3 Kinder</option>
+                                        <option value="4">4 Kinder</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="mb-6 text-slate-600">
+                            Die Grafik zeigt die Entwicklung der LHK-Ansätze verschiedener Banken über das Haushaltsnettoeinkommen.
+                        </p>
+                        <div class="mb-4 p-3 bg-blue-50 text-blue-800 text-sm rounded-lg border border-blue-100 flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span><strong>Tipp zur Übersichtlichkeit:</strong> Klicken Sie unten in der Legende auf den Namen eines Anbieters, um dessen Linie gezielt ein- oder auszublenden.</span>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 h-[600px] w-full relative">
+                            <canvas id="lhkChart" style="display: block; box-sizing: border-box; height: 566.4px; width: 810.1px;" width="1012" height="708"></canvas>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Tab Content: LHK Values (Maintenance) -->
+                <div id="content-lhk-values" class="hidden min-h-full">
+                    <section>
+                         <div class="flex items-center justify-between mb-6 border-b pb-2 border-slate-100">
+                            <div class="flex items-center space-x-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                                </svg>
+                                <h2 class="text-2xl font-bold text-slate-800">Stammdaten: LHK-Pauschalen</h2>
+                            </div>
+                        </div>
+                        
+                        <!-- Maintenance Controls -->
+                        <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-8">
+                            <h3 class="text-lg font-bold text-slate-700 mb-4">Anbieter bearbeiten</h3>
+                            <div class="flex flex-col md:flex-row gap-4 items-end">
+                                <div class="flex-grow w-full">
+                                    <label class="block text-sm font-semibold text-slate-600 mb-1">Anbieter auswählen</label>
+                                    <select id="provider-select" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-lg"><option value="Wir (Simulator)">Wir (Simulator)</option><option value="WIR (Simulation neu)">WIR (Simulation neu)</option><option value="Allianz">Allianz</option><option value="Axa">Axa</option><option value="Signal">Signal</option><option value="Coba">Coba</option><option value="Deuba">Deuba</option><option value="DKB">DKB</option><option value="ING">ING</option><option value="PSD RR">PSD RR</option></select>
+                                </div>
+                                <button id="edit-provider-btn" class="w-full md:w-auto bg-indigo-600 text-white font-bold text-lg py-3 px-8 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors shadow-sm flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                    Bearbeiten
+                                </button>
+                            </div>
+                            <p class="text-sm text-slate-500 mt-2">Wählen Sie einen Anbieter aus, um dessen spezifische Werte und Logik im Detail anzupassen.</p>
+                        </div>
+
+                        <div class="market-table-container">
+                            <table class="w-full text-left text-sm border-collapse market-table">
+                                <thead class="bg-slate-50">
+                                    <tr>
+                                        <th class="py-4 px-3 font-bold text-slate-700 border-b col-anbieter shadow-sm">Anbieter</th>
+                                        <th class="py-4 px-3 font-bold text-slate-700 border-b">Single (Basis)</th>
+                                        <th class="py-4 px-3 font-bold text-slate-700 border-b">Paar (Basis)</th>
+                                        <th class="py-4 px-3 font-bold text-slate-700 border-b">Netto %</th>
+                                        <th class="py-4 px-3 font-bold text-slate-700 border-b">P + 2 Kd. (Ref)</th>
+                                        <th class="py-4 px-3 font-bold text-slate-700 border-b">EE + 2 Kd. (Ref)</th>
+                                        <th class="py-4 px-3 font-bold text-slate-700 border-b">Detail-Logik / Bemerkung</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100" id="lhk-values-body"><tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                        <td class="p-1"><div class="readonly-cell font-bold">Wir (Simulator)</div></td>
+                        <td class="p-1"><div class="readonly-cell">1200</div></td>
+                        <td class="p-1"><div class="readonly-cell">1800</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center">40%</div></td>
+                        <td class="p-1"><div class="readonly-cell">2400</div></td>
+                        <td class="p-1"><div class="readonly-cell">2100</div></td>
+                        <td class="p-1"><div class="readonly-cell italic text-slate-500">Standard</div></td>
+                    </tr><tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                        <td class="p-1"><div class="readonly-cell font-bold">Wir (o. Kindergeld)</div></td>
+                        <td class="p-1"><div class="readonly-cell">1200</div></td>
+                        <td class="p-1"><div class="readonly-cell">1800</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center">40%</div></td>
+                        <td class="p-1"><div class="readonly-cell">2400</div></td>
+                        <td class="p-1"><div class="readonly-cell">2100</div></td>
+                        <td class="p-1"><div class="readonly-cell italic text-slate-500">Standard ohne Kindergeld</div></td>
+                    </tr><tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                        <td class="p-1"><div class="readonly-cell font-bold">WIR (Simulation neu)</div></td>
+                        <td class="p-1"><div class="readonly-cell">1200</div></td>
+                        <td class="p-1"><div class="readonly-cell">1800</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center">40%</div></td>
+                        <td class="p-1"><div class="readonly-cell">2400</div></td>
+                        <td class="p-1"><div class="readonly-cell">2100</div></td>
+                        <td class="p-1"><div class="readonly-cell italic text-slate-500">Bis 6.000€ Pauschale n. Pers, ab 6.000€ 40% v. Netto</div></td>
+                    </tr><tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                        <td class="p-1"><div class="readonly-cell font-bold">Allianz</div></td>
+                        <td class="p-1"><div class="readonly-cell">1000</div></td>
+                        <td class="p-1"><div class="readonly-cell">1400</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center">40%</div></td>
+                        <td class="p-1"><div class="readonly-cell">1750</div></td>
+                        <td class="p-1"><div class="readonly-cell">1350</div></td>
+                        <td class="p-1"><div class="readonly-cell italic text-slate-500">1.P 1000, 2.P 400, Kd 175</div></td>
+                    </tr><tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                        <td class="p-1"><div class="readonly-cell font-bold">Axa</div></td>
+                        <td class="p-1"><div class="readonly-cell">950</div></td>
+                        <td class="p-1"><div class="readonly-cell">1200</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center"></div></td>
+                        <td class="p-1"><div class="readonly-cell">1800</div></td>
+                        <td class="p-1"><div class="readonly-cell">1550</div></td>
+                        <td class="p-1"><div class="readonly-cell italic text-slate-500">Single 950, Paar 1200, Kd 300</div></td>
+                    </tr><tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                        <td class="p-1"><div class="readonly-cell font-bold">Signal</div></td>
+                        <td class="p-1"><div class="readonly-cell">850</div></td>
+                        <td class="p-1"><div class="readonly-cell">1330</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center">40%</div></td>
+                        <td class="p-1"><div class="readonly-cell">1930</div></td>
+                        <td class="p-1"><div class="readonly-cell">1450</div></td>
+                        <td class="p-1"><div class="readonly-cell italic text-slate-500">1.P 850, 2.P 480, Kd 300</div></td>
+                    </tr><tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                        <td class="p-1"><div class="readonly-cell font-bold">Coba</div></td>
+                        <td class="p-1"><div class="readonly-cell">705</div></td>
+                        <td class="p-1"><div class="readonly-cell">1265</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center">30%</div></td>
+                        <td class="p-1"><div class="readonly-cell">2330</div></td>
+                        <td class="p-1"><div class="readonly-cell">1800</div></td>
+                        <td class="p-1"><div class="readonly-cell italic text-slate-500">Staffel nach Personen: 1P 705, 2P 1265, 3P 1800, 4P 2330, jede weitere 535. Max 3900.</div></td>
+                    </tr><tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                        <td class="p-1"><div class="readonly-cell font-bold">Deuba</div></td>
+                        <td class="p-1"><div class="readonly-cell">840</div></td>
+                        <td class="p-1"><div class="readonly-cell">1200</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center"></div></td>
+                        <td class="p-1"><div class="readonly-cell">1920</div></td>
+                        <td class="p-1"><div class="readonly-cell">1560</div></td>
+                        <td class="p-1"><div class="readonly-cell italic text-slate-500">1.P 840, 2.P 360, Kd 360</div></td>
+                    </tr><tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                        <td class="p-1"><div class="readonly-cell font-bold">DKB</div></td>
+                        <td class="p-1"><div class="readonly-cell">754</div></td>
+                        <td class="p-1"><div class="readonly-cell">1213</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center">30%</div></td>
+                        <td class="p-1"><div class="readonly-cell">1929</div></td>
+                        <td class="p-1"><div class="readonly-cell">1470</div></td>
+                        <td class="p-1"><div class="readonly-cell italic text-slate-500">1.P 754, Paar 1213, Kd 358</div></td>
+                    </tr><tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                        <td class="p-1"><div class="readonly-cell font-bold">ING</div></td>
+                        <td class="p-1"><div class="readonly-cell">809</div></td>
+                        <td class="p-1"><div class="readonly-cell">1213</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center"></div></td>
+                        <td class="p-1"><div class="readonly-cell">1763</div></td>
+                        <td class="p-1"><div class="readonly-cell">1359</div></td>
+                        <td class="p-1"><div class="readonly-cell italic text-slate-500">min 730 max 2810</div></td>
+                    </tr><tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                        <td class="p-1"><div class="readonly-cell font-bold">PSD RR</div></td>
+                        <td class="p-1"><div class="readonly-cell">1300</div></td>
+                        <td class="p-1"><div class="readonly-cell">1600</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center">40%</div></td>
+                        <td class="p-1"><div class="readonly-cell">2000</div></td>
+                        <td class="p-1"><div class="readonly-cell">1700</div></td>
+                        <td class="p-1"><div class="readonly-cell italic text-slate-500">1300 + 300/300/200</div></td>
+                    </tr></tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Tab Content: Bonitaet -->
+                <div id="content-bonitaet" class="hidden min-h-full">
+                     <!-- SECTION 2: EINNAHMEN & BONITÄT MOVED HERE -->
+                    <section>
+                        <div class="flex items-center space-x-2 mb-6 border-b pb-2 border-slate-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-10V4m0 10V4m-4 12h4"></path>
+                            </svg>
+                            <h2 class="text-2xl font-bold text-slate-800">Einnahmen-Anrechnung &amp; Bonität</h2>
+                        </div>
+                        <div class="market-table-container">
+                            <table class="w-full text-left text-xs border-collapse market-table">
+                                <thead class="bg-slate-50">
+                                    <tr>
+                                        <th class="py-4 px-2 font-bold text-slate-700 border-b col-anbieter shadow-sm">Anbieter</th>
+                                        <th class="py-4 px-2 font-bold text-slate-700 border-b">Miete</th>
+                                        <th class="py-4 px-2 font-bold text-slate-700 border-b">Bewirt./qm</th>
+                                        <th class="py-4 px-2 font-bold text-slate-700 border-b">KindG</th>
+                                        <th class="py-4 px-2 font-bold text-slate-700 border-b">WeihnG</th>
+                                        <th class="py-4 px-2 font-bold text-slate-700 border-b">UrlaubG</th>
+                                        <th class="py-4 px-2 font-bold text-slate-700 border-b">Prov.</th>
+                                        <th class="py-4 px-2 font-bold text-slate-700 border-b">13. Gehalt</th>
+                                        <th class="py-4 px-2 font-bold text-slate-700 border-b">Schicht</th>
+                                        <th class="py-4 px-2 font-bold text-slate-700 border-b">Nebenjob</th>
+                                        <th class="py-4 px-2 font-bold text-slate-700 border-b">Befristungen</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    <!-- Wir (Simulator) -->
+                                    <tr class="hover:bg-indigo-50 transition-colors">
+                                        <td class="p-1"><input type="text" class="editable-cell font-bold" value="Wir (Simulator)"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="keine"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="ja"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-medium" value="mind. 6 Monate"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-wide" value="Einzelfall"></td>
+                                    </tr>
+                                    <!-- Wir (o. Kindergeld) -->
+                                    <tr class="bg-slate-50/50 hover:bg-indigo-50 transition-colors">
+                                        <td class="p-1"><input type="text" class="editable-cell font-bold" value="Wir (o. Kindergeld)"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="keine"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="0%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="ja"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-medium" value="mind. 6 Monate"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-wide" value="Einzelfall"></td>
+                                    </tr>
+                                    <!-- WIR (Simulation neu) -->
+                                    <tr class="hover:bg-indigo-50 transition-colors">
+                                        <td class="p-1"><input type="text" class="editable-cell font-bold" value="WIR (Simulation neu)"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="keine"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="ja"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-medium" value="mind. 6 Monate"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-wide" value="Einzelfall"></td>
+                                    </tr>
+                                    <!-- Allianz -->
+                                    <tr class="bg-slate-50/50 hover:bg-indigo-50 transition-colors">
+                                        <td class="p-1"><input type="text" class="editable-cell font-bold" value="Allianz"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="75%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="keine"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="kA"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="ja"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="nein"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-medium" value="mind. 6 Monate"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-wide" value="Ärzte, Pflege, Lehrer ok"></td>
+                                    </tr>
+                                    <!-- Axa -->
+                                    <tr class="bg-slate-50/50 hover:bg-indigo-50 transition-colors">
+                                        <td class="p-1"><input type="text" class="editable-cell font-bold" value="Axa"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="75%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="2"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="Einzelfall"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="ja"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="50%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-medium" value="mind. 12 Monate"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-wide" value="wenn branchentypisch"></td>
+                                    </tr>
+                                    <!-- Signal -->
+                                    <tr class="hover:bg-indigo-50 transition-colors">
+                                        <td class="p-1"><input type="text" class="editable-cell font-bold" value="Signal"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="70%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="4"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="ja"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="kA"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-medium" value="mind. 12 Monate"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-wide" value="dito"></td>
+                                    </tr>
+                                    <!-- Coba -->
+                                    <tr class="bg-slate-50/50 hover:bg-indigo-50 transition-colors">
+                                        <td class="p-1"><input type="text" class="editable-cell font-bold" value="Coba"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="80%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="4,5"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="nein"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="nein"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="50%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="nein"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-medium" value="mind. 3 Monate"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-wide" value="branchenüblich"></td>
+                                    </tr>
+                                    <!-- Deuba -->
+                                    <tr class="hover:bg-indigo-50 transition-colors">
+                                        <td class="p-1"><input type="text" class="editable-cell font-bold" value="Deuba"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="80%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="3,6"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="nein"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="nein"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="ja"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-medium" value="mind. 3 Monate"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-wide" value="dito"></td>
+                                    </tr>
+                                    <!-- DKB -->
+                                    <tr class="bg-slate-50/50 hover:bg-indigo-50 transition-colors">
+                                        <td class="p-1"><input type="text" class="editable-cell font-bold" value="DKB"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="75%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="25%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="50%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="ja"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-medium" value="mind. 12 Monate"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-wide" value="Einzelfall"></td>
+                                    </tr>
+                                    <!-- ING -->
+                                    <tr class="hover:bg-indigo-50 transition-colors">
+                                        <td class="p-1"><input type="text" class="editable-cell font-bold" value="ING"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="75%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="25%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="80%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="ja"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-medium" value="ja"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-wide" value="nein (außer Ärzte)"></td>
+                                    </tr>
+                                    <!-- PSD RR -->
+                                    <tr class="bg-slate-50/50 hover:bg-indigo-50 transition-colors">
+                                        <td class="p-1"><input type="text" class="editable-cell font-bold" value="PSD RR"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="80%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="20%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="ja"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-center" value="100%"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-medium" value="ja"></td>
+                                        <td class="p-1"><input type="text" class="editable-cell text-field-wide" value="branchenüblich"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="text-center mt-4 text-slate-500 text-xs flex-none">
+            <p>Datenstand basierend auf Marktauswertung 2024/2025. Alle Simulationen ohne Gewähr.</p>
+        </footer>
+
+        <!-- Modal (Viewing Standard Table) -->
+        <div id="modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-slate-900 bg-opacity-75 transition-opacity opacity-0 pointer-events-none">
+            <div id="modal-content" class="bg-white rounded-xl shadow-2xl p-6 md:p-8 m-4 max-w-md w-full transform transition-all scale-95 flex flex-col max-h-[90vh]">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-200">
+                    <h2 class="text-2xl font-bold text-slate-800">LHK-Tabelle (Standard)</h2>
+                    <button id="modal-close-icon" class="text-slate-500 hover:text-slate-800 transition-colors rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Schließen">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="overflow-y-auto custom-scrollbar flex-1">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 bg-white shadow-sm">
+                            <tr>
+                                <th class="py-3 px-4 font-semibold text-slate-600">Haushaltseinkommen (€)</th>
+                                <th class="py-3 px-4 font-semibold text-slate-600 text-right">LHK-Pauschale (€)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modal-table-body"><tr class="border-b hover:bg-slate-50"><td class="p-3 text-slate-700">0 - 3000 €</td><td class="p-3 text-right font-bold text-indigo-600">1200 €</td></tr><tr class="border-b hover:bg-slate-50"><td class="p-3 text-slate-700">3001 - 4000 €</td><td class="p-3 text-right font-bold text-indigo-600">1600 €</td></tr><tr class="border-b hover:bg-slate-50"><td class="p-3 text-slate-700">4001 - 5000 €</td><td class="p-3 text-right font-bold text-indigo-600">2000 €</td></tr><tr class="border-b hover:bg-slate-50"><td class="p-3 text-slate-700">5001 - 6000 €</td><td class="p-3 text-right font-bold text-indigo-600">2500 €</td></tr><tr class="border-b hover:bg-slate-50"><td class="p-3 text-slate-700">6001 - 7000 €</td><td class="p-3 text-right font-bold text-indigo-600">2900 €</td></tr><tr class="border-b hover:bg-slate-50"><td class="p-3 text-slate-700">7001 - 8000 €</td><td class="p-3 text-right font-bold text-indigo-600">3400 €</td></tr><tr class="border-b hover:bg-slate-50"><td class="p-3 text-slate-700">8001 - 9000 €</td><td class="p-3 text-right font-bold text-indigo-600">3800 €</td></tr><tr class="border-b hover:bg-slate-50"><td class="p-3 text-slate-700">9001 - 10000 €</td><td class="p-3 text-right font-bold text-indigo-600">4000 €</td></tr><tr class="border-b hover:bg-slate-50"><td class="p-3 text-slate-700">10001 - 25000 €</td><td class="p-3 text-right font-bold text-indigo-600">4000 €</td></tr></tbody>
+                    </table>
+                </div>
+                <div class="mt-6 text-center pt-2 border-t border-slate-100">
+                    <button id="modal-close-btn" class="w-full sm:w-auto bg-indigo-600 text-white font-bold text-base py-2 px-6 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
+                        Schließen
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Provider Modal -->
+        <div id="edit-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-slate-900 bg-opacity-75 transition-opacity opacity-0 pointer-events-none">
+            <div id="edit-modal-content" class="bg-white rounded-xl shadow-2xl p-6 md:p-8 m-4 max-w-2xl w-full transform transition-all scale-95 flex flex-col max-h-[90vh]">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-200">
+                    <h2 id="edit-modal-title" class="text-2xl font-bold text-slate-800">Anbieter bearbeiten</h2>
+                    <button id="edit-modal-close-icon" class="text-slate-500 hover:text-slate-800 transition-colors rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Schließen">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div id="edit-modal-body" class="overflow-y-auto custom-scrollbar flex-1 p-1">
+                    <!-- Content injected via JS -->
+                </div>
+
+                <div class="mt-6 flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                     <button id="edit-modal-cancel-btn" class="px-6 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400 transition-colors">
+                        Abbrechen
+                    </button>
+                    <button id="edit-modal-save-btn" class="px-6 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors shadow-sm">
+                        Speichern
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DATA ---
+            let SIMULATOR_LHK = [
+                { min: 0, max: 3000, lhk: 1200 },
+                { min: 3001, max: 4000, lhk: 1600 },
+                { min: 4001, max: 5000, lhk: 2000 },
+                { min: 5001, max: 6000, lhk: 2500 },
+                { min: 6001, max: 7000, lhk: 2900 },
+                { min: 7001, max: 8000, lhk: 3400 },
+                { min: 8001, max: 9000, lhk: 3800 },
+                { min: 9001, max: 10000, lhk: 4000 },
+                { min: 10001, max: 25000, lhk: 4000 },
+            ];
+
+            const BANK_DATA = [
+                { 
+                    name: "Wir (Simulator)", 
+                    logic: "Standard", 
+                    calc: (isPaar, kids, net, total) => {
+                        const bracket = SIMULATOR_LHK.find(b => total >= b.min && total <= b.max);
+                        return { flat: bracket ? bracket.lhk : 4000, pct: 0 };
+                    }
+                },
+                { 
+                    name: "Wir (o. Kindergeld)", 
+                    logic: "Standard ohne Kindergeld", 
+                    calc: (isPaar, kids, net, total) => {
+                        const bracket = SIMULATOR_LHK.find(b => net >= b.min && net <= b.max);
+                        return { flat: bracket ? bracket.lhk : 4000, pct: 0 };
+                    }
+                },
+                { 
+                    name: "WIR (Simulation neu)", 
+                    type: "wir_new",
+                    threshold: 6000,
+                    netPct: 40,
+                    rates: [1200, 1800, 2100, 2400, 2700, 3000],
+                    logic: "Bis 6.000€ Pauschale n. Pers, ab 6.000€ 40% v. Netto",
+                    calc: function(isPaar, kids, net, total) {
+                        if (total < this.threshold) {
+                            const persons = (isPaar ? 2 : 1) + kids;
+                            const idx = Math.min(persons - 1, this.rates.length - 1);
+                            let flat = this.rates[idx];
+                            if (persons > this.rates.length) {
+                                flat = this.rates[this.rates.length - 1] + (persons - this.rates.length) * 300;
+                            }
+                            return { flat, pct: 0 };
+                        } else {
+                            const pct = total * (this.netPct / 100);
+                            return { flat: 0, pct };
+                        }
+                    }
+                },
+                { 
+                    name: "Allianz", 
+                    base: 1000, partner: 400, child: 175, netPct: 40,
+                    logic: "1.P 1000, 2.P 400, Kd 175",
+                    calc: function(isPaar, kids, net, total) {
+                        const flat = this.base + (isPaar ? this.partner : 0) + (kids * this.child);
+                        const pct = net * (this.netPct / 100);
+                        return { flat, pct };
+                    }
+                },
+                { 
+                    name: "Axa", 
+                    base: 950, partner: 250, child: 300, netPct: 0,
+                    logic: "Single 950, Paar 1200, Kd 300", 
+                    calc: function(isPaar, kids, net, total) {
+                        const flat = this.base + (isPaar ? this.partner : 0) + (kids * this.child);
+                        return { flat, pct: 0 };
+                    }
+                },
+                { 
+                    name: "Signal", 
+                    base: 850, partner: 480, child: 300, netPct: 40,
+                    logic: "1.P 850, 2.P 480, Kd 300", 
+                    calc: function(isPaar, kids, net, total) {
+                        const flat = this.base + (isPaar ? this.partner : 0) + (kids * this.child);
+                        const pct = net * (this.netPct / 100);
+                        return { flat, pct };
+                    }
+                },
+                { 
+                    name: "Coba", 
+                    type: "person_steps",
+                    p1: 705, p2: 1265, p3: 1800, p4: 2330, pNext: 535, max: 3900, netPct: 30,
+                    logic: "Staffel nach Personen: 1P 705, 2P 1265, 3P 1800, 4P 2330, jede weitere 535. Max 3900.", 
+                    calc: function(isPaar, kids, net, total) {
+                        const persons = (isPaar ? 2 : 1) + kids;
+                        let flat = 0;
+                        if (persons === 1) flat = this.p1;
+                        else if (persons === 2) flat = this.p2;
+                        else if (persons === 3) flat = this.p3;
+                        else if (persons === 4) flat = this.p4;
+                        else flat = this.p4 + ((persons - 4) * this.pNext);
+                        
+                        if (this.max > 0 && flat > this.max) flat = this.max;
+
+                        const pct = net * (this.netPct / 100);
+                        return { flat, pct };
+                    }
+                },
+                { 
+                    name: "Deuba", 
+                    base: 840, partner: 360, child: 360, netPct: 0,
+                    logic: "1.P 840, 2.P 360, Kd 360", 
+                    calc: function(isPaar, kids, net, total) {
+                        const flat = this.base + (isPaar ? this.partner : 0) + (kids * this.child);
+                        return { flat, pct: 0 };
+                    }
+                },
+                { 
+                    name: "DKB", 
+                    base: 754, partner: 459, child: 358, netPct: 30,
+                    logic: "1.P 754, Paar 1213, Kd 358", 
+                    calc: function(isPaar, kids, net, total) {
+                        const flat = this.base + (isPaar ? this.partner : 0) + (kids * this.child);
+                        const pct = net * (this.netPct / 100);
+                        return { flat, pct };
+                    }
+                },
+                { 
+                    name: "ING", 
+                    base: 809, partner: 404, child: 275, netPct: 0,
+                    logic: "min 730 max 2810", 
+                    calc: function(isPaar, kids, net, total) {
+                        const flat = this.base + (isPaar ? this.partner : 0) + (kids * this.child);
+                        return { flat, pct: 0 };
+                    }
+                },
+                { 
+                    name: "PSD RR", 
+                    base: 1300, partner: 300, child: 200, netPct: 40,
+                    logic: "1300 + 300/300/200", 
+                    calc: function(isPaar, kids, net, total) {
+                        const flat = this.base + (isPaar ? this.partner : 0) + (kids * this.child);
+                        const pct = net * (this.netPct / 100);
+                        return { flat, pct };
+                    }
+                }
+            ];
+
+            const CHILD_BENEFIT = 255;
+            
+            // --- STATE ---
+            let marketIsPaar = true;
+            let marketKids = 2;
+            let chartInstance = null;
+            let chartHiddenStates = {}; // Preserve hidden states across chart re-renders
+
+            // --- DOM ---
+            const tabButtons = {
+                individual: document.getElementById('tab-individual'),
+                matrix: document.getElementById('tab-matrix'),
+                market: document.getElementById('tab-market'),
+                chart: document.getElementById('tab-chart'),
+                lhkValues: document.getElementById('tab-lhk-values'),
+                bonitaet: document.getElementById('tab-bonitaet')
+            };
+            const tabContents = {
+                individual: document.getElementById('content-individual'),
+                matrix: document.getElementById('content-matrix'),
+                market: document.getElementById('content-market'),
+                chart: document.getElementById('content-chart'),
+                lhkValues: document.getElementById('content-lhk-values'),
+                bonitaet: document.getElementById('content-bonitaet')
+            };
+
+            const marketStatusButtons = {
+                single: document.getElementById('market-single'),
+                couple: document.getElementById('market-couple')
+            };
+            const marketKidsSelect = document.getElementById('market-children');
+            const marketIncomeInput = document.getElementById('market-income');
+            const marketTotalDisplay = document.getElementById('market-total-display');
+            const bankLhkBody = document.getElementById('bank-lhk-body');
+            const lhkValuesBody = document.getElementById('lhk-values-body');
+            const providerSelect = document.getElementById('provider-select');
+            const editProviderBtn = document.getElementById('edit-provider-btn');
+            
+            // Chart Tab Controls
+            const chartStatusButtons = {
+                single: document.getElementById('chart-single'),
+                couple: document.getElementById('chart-couple')
+            };
+            const chartKidsSelect = document.getElementById('chart-children');
+            // Chart Income Input removed as per user request
+            
+            // Chart canvas
+            const lhkChartCanvas = document.getElementById('lhkChart');
+
+            // Modal elements
+            const editModal = document.getElementById('edit-modal');
+            const editModalTitle = document.getElementById('edit-modal-title');
+            const editModalBody = document.getElementById('edit-modal-body');
+            const editModalCancelBtn = document.getElementById('edit-modal-cancel-btn');
+            const editModalSaveBtn = document.getElementById('edit-modal-save-btn');
+            const editModalCloseIcon = document.getElementById('edit-modal-close-icon');
+
+            // Individual Sim inputs
+            const incomeInput = document.getElementById('income');
+            const kidsSelect = document.getElementById('children');
+            const interestInput = document.getElementById('interest');
+            const repayInput = document.getElementById('repayment');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const resultContainer = document.getElementById('result-container');
+
+            // --- HELPERS ---
+            const fmt = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+            const parseNum = (s) => parseFloat(s.replace(/\./g, '').replace(',', '.')) || 0;
+
+            // --- LOGIC ---
+            function updateMarketTable() {
+                const netIncome = parseNum(marketIncomeInput.value) || 0;
+                const totalIncome = netIncome + (marketKids * CHILD_BENEFIT);
+                
+                marketTotalDisplay.textContent = fmt.format(totalIncome);
+
+                bankLhkBody.innerHTML = '';
+                BANK_DATA.forEach(bank => {
+                    const result = bank.calc(marketIsPaar, marketKids, netIncome, totalIncome);
+                    // Determine which is higher
+                    const flatHigh = result.flat >= result.pct;
+                    
+                    // Generate Dynamic Logic Text
+                    let logicDetails = "";
+                    if (bank.name === "Wir (Simulator)") {
+                        logicDetails = `Tabellenwert (Einkommen: ${fmt.format(totalIncome)})`;
+                    } else if (bank.name === "Wir (o. Kindergeld)") {
+                        logicDetails = `Tabellenwert (Einkommen ohne KG: ${fmt.format(netIncome)})`;
+                    } else if (bank.type === 'person_steps') {
+                        // Logic for Coba / Step-based
+                        const persons = (marketIsPaar ? 2 : 1) + marketKids;
+                        if (persons === 1) logicDetails = `1 Person: ${fmt.format(bank.p1)}`;
+                        else if (persons === 2) logicDetails = `2 Personen: ${fmt.format(bank.p2)}`;
+                        else if (persons === 3) logicDetails = `3 Personen: ${fmt.format(bank.p3)}`;
+                        else if (persons === 4) logicDetails = `4 Personen: ${fmt.format(bank.p4)}`;
+                        else {
+                            const extra = persons - 4;
+                            const total = bank.p4 + (extra * bank.pNext);
+                            logicDetails = `${persons} Personen: ${fmt.format(bank.p4)} + ${extra}x${fmt.format(bank.pNext)} = ${fmt.format(total)}`;
+                        }
+                        if (bank.max > 0 && result.flat === bank.max) logicDetails += " (Gedeckelt)";
+
+                    } else if (bank.type === 'wir_new') {
+                        const persons = (marketIsPaar ? 2 : 1) + marketKids;
+                        if (totalIncome < bank.threshold) {
+                            logicDetails = `Pauschale für ${persons} Pers. (< ${fmt.format(bank.threshold)})`;
+                        } else {
+                            logicDetails = `${bank.netPct}% von ${fmt.format(totalIncome)} (>= ${fmt.format(bank.threshold)})`;
+                        }
+                    } else {
+                        // Standard Logic
+                        logicDetails = `${fmt.format(bank.base)} (Basis)`;
+                        if (marketIsPaar) {
+                             logicDetails += ` + ${fmt.format(bank.partner)} (Partner)`;
+                        }
+                        if (marketKids > 0) {
+                             logicDetails += ` + ${marketKids}x${fmt.format(bank.child)} (Kind)`;
+                        }
+                    }
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-indigo-50 transition-colors";
+                    
+                    // Styling for highlight
+                    const flatStyle = flatHigh 
+                        ? 'bg-green-100 text-green-700 font-bold border border-green-300 shadow-sm' 
+                        : 'bg-slate-50 text-slate-400 border border-slate-100';
+                        
+                    const pctStyle = !flatHigh 
+                        ? 'bg-green-100 text-green-700 font-bold border border-green-300 shadow-sm' 
+                        : 'bg-slate-50 text-slate-400 border border-slate-100';
+
+                    tr.innerHTML = `
+                        <td class="p-1"><div class="readonly-cell font-bold">${bank.name}</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md ${flatStyle}">${fmt.format(result.flat)}</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center rounded-md ${pctStyle}">${result.pct > 0 ? fmt.format(result.pct) : '-'}</div></td>
+                        <td class="p-1"><div class="readonly-cell text-sm text-slate-600">${logicDetails}</div></td>
+                    `;
+                    bankLhkBody.appendChild(tr);
+                });
+            }
+
+            function updateLhkValuesTable() {
+                // Populate Dropdown
+                const currentSelection = providerSelect.value;
+                providerSelect.innerHTML = '';
+                BANK_DATA.forEach(bank => {
+                    if (bank.name === "Wir (o. Kindergeld)") return; // Hide from dropdown as it shares settings with Wir (Simulator)
+                    const opt = document.createElement('option');
+                    opt.value = bank.name;
+                    opt.textContent = bank.name;
+                    providerSelect.appendChild(opt);
+                });
+                if (currentSelection && [...providerSelect.options].some(o => o.value === currentSelection)) {
+                    providerSelect.value = currentSelection;
+                }
+
+                // Populate Table
+                lhkValuesBody.innerHTML = '';
+                BANK_DATA.forEach(bank => {
+                    let s, p, p2k, ee2k, netStr;
+
+                    if (bank.name === "Wir (Simulator)" || bank.name === "Wir (o. Kindergeld)") {
+                        // Übertrage die Werte aus WIR (Simulation neu) für die Anzeige
+                        const wirNeu = BANK_DATA.find(b => b.name === "WIR (Simulation neu)");
+                        s = wirNeu.rates[0];
+                        p = wirNeu.rates[1];
+                        netStr = wirNeu.netPct + "%";
+                        p2k = wirNeu.rates[3];
+                        ee2k = wirNeu.rates[2];
+                    } else if (bank.type === 'person_steps') {
+                        // Logic for person-step-based banks (Coba)
+                        s = bank.p1;
+                        p = bank.p2;
+                        netStr = bank.netPct > 0 ? bank.netPct + "%" : "";
+                        p2k = bank.p4; // 2 adults + 2 kids = 4 persons
+                        ee2k = bank.p3; // 1 adult + 2 kids = 3 persons
+                    } else if (bank.type === 'wir_new') {
+                        s = bank.rates[0];
+                        p = bank.rates[1];
+                        netStr = bank.netPct + "%";
+                        p2k = bank.rates[3]; // 2+2=4
+                        ee2k = bank.rates[2]; // 1+2=3
+                    } else {
+                        // Standard logic
+                        s = bank.base;
+                        p = bank.base + bank.partner;
+                        p2k = bank.base + bank.partner + (2 * bank.child);
+                        ee2k = bank.base + (2 * bank.child);
+                        netStr = bank.netPct > 0 ? bank.netPct + "%" : "";
+                    }
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 transition-colors border-b border-slate-100";
+                    tr.innerHTML = `
+                        <td class="p-1"><div class="readonly-cell font-bold">${bank.name}</div></td>
+                        <td class="p-1"><div class="readonly-cell">${s}</div></td>
+                        <td class="p-1"><div class="readonly-cell">${p}</div></td>
+                        <td class="p-1"><div class="readonly-cell text-center">${netStr}</div></td>
+                        <td class="p-1"><div class="readonly-cell">${p2k}</div></td>
+                        <td class="p-1"><div class="readonly-cell">${ee2k}</div></td>
+                        <td class="p-1"><div class="readonly-cell italic text-slate-500">${bank.logic}</div></td>
+                    `;
+                    lhkValuesBody.appendChild(tr);
+                });
+            }
+            
+            // --- SYNC FUNCTIONS ---
+            function syncInputsFromMarketToChart() {
+                chartKidsSelect.value = marketKidsSelect.value;
+                updateChartStatusButtons();
+            }
+            
+            function syncInputsFromChartToMarket() {
+                marketKidsSelect.value = chartKidsSelect.value;
+                updateMarketStatusButtons();
+                updateMarketTable();
+            }
+
+            function updateChartStatusButtons() {
+                if (!marketIsPaar) {
+                    chartStatusButtons.single.className = "flex-1 py-2 px-2 rounded-lg border-2 border-indigo-600 bg-indigo-600 text-white font-bold transition-all text-sm shadow-sm";
+                    chartStatusButtons.couple.className = "flex-1 py-2 px-2 rounded-lg border-2 border-slate-200 bg-white text-slate-600 font-bold transition-all text-sm hover:bg-slate-50";
+                } else {
+                    chartStatusButtons.couple.className = "flex-1 py-2 px-2 rounded-lg border-2 border-indigo-600 bg-indigo-600 text-white font-bold transition-all text-sm shadow-sm";
+                    chartStatusButtons.single.className = "flex-1 py-2 px-2 rounded-lg border-2 border-slate-200 bg-white text-slate-600 font-bold transition-all text-sm hover:bg-slate-50";
+                }
+            }
+            
+            function updateMarketStatusButtons() {
+                if (!marketIsPaar) {
+                    marketStatusButtons.single.className = "flex-1 py-2 px-2 rounded-lg border-2 border-indigo-600 bg-indigo-600 text-white font-bold transition-all text-sm shadow-sm";
+                    marketStatusButtons.couple.className = "flex-1 py-2 px-2 rounded-lg border-2 border-slate-200 bg-white text-slate-600 font-bold transition-all text-sm hover:bg-slate-50";
+                } else {
+                    marketStatusButtons.couple.className = "flex-1 py-2 px-2 rounded-lg border-2 border-indigo-600 bg-indigo-600 text-white font-bold transition-all text-sm shadow-sm";
+                    marketStatusButtons.single.className = "flex-1 py-2 px-2 rounded-lg border-2 border-slate-200 bg-white text-slate-600 font-bold transition-all text-sm hover:bg-slate-50";
+                }
+            }
+
+            // --- CHART LOGIC ---
+            function generateChart() {
+                // Manually define steps to include low income range
+                let incomeSteps = [0, 1200, 1500];
+                for(let i = 2000; i <= 10000; i += 250) {
+                    incomeSteps.push(i);
+                }
+                
+                // Color palette
+                const colors = [
+                    '#3b82f6', // Simulator (Blue)
+                    '#ef4444', // Red
+                    '#f97316', // Orange
+                    '#84cc16', // Lime
+                    '#10b981', // Emerald
+                    '#06b6d4', // Cyan
+                    '#6366f1', // Indigo
+                    '#d946ef', // Fuchsia
+                    '#8b5cf6', // Violet
+                    '#ec4899'  // Pink
+                ];
+
+                // Create Curve Datasets
+                const datasets = BANK_DATA.map((bank, idx) => {
+                    const data = incomeSteps.map(net => {
+                        const total = net + (marketKids * CHILD_BENEFIT);
+                        const result = bank.calc(marketIsPaar, marketKids, net, total);
+                        const val = Math.max(result.flat, result.pct);
+                        return { x: net, y: val };
+                    });
+
+                    // Style
+                    const isSim = bank.name === "Wir (Simulator)";
+                    const isSimNoKg = bank.name === "Wir (o. Kindergeld)";
+                    let color = colors[idx % colors.length];
+                    if (isSim) color = '#0f172a'; // Simulator black/dark
+                    else if (isSimNoKg) color = '#475569'; // Simulator without KG (slate)
+                    
+                    return {
+                        type: 'line',
+                        label: bank.name,
+                        data: data,
+                        borderColor: color,
+                        backgroundColor: color,
+                        pointRadius: 0, // No points on curve for cleaner look
+                        pointHoverRadius: 6,
+                        borderWidth: (isSim || isSimNoKg) ? 3 : 2,
+                        borderDash: isSimNoKg ? [5, 5] : [], // Dashed line for variant
+                        tension: 0.2, // slight curve
+                        order: (isSim || isSimNoKg) ? 1 : 2, // Simulators on top
+                        hidden: chartHiddenStates[bank.name] === true // Apply preserved hidden state
+                    };
+                });
+
+                if (chartInstance) {
+                    // Save current hidden states before destroying
+                    chartInstance.data.datasets.forEach((ds, i) => {
+                        const meta = chartInstance.getDatasetMeta(i);
+                        chartHiddenStates[ds.label] = meta.hidden === true;
+                    });
+                    
+                    // Re-apply hidden states to new datasets
+                    datasets.forEach(ds => {
+                        ds.hidden = chartHiddenStates[ds.label] === true;
+                    });
+                    
+                    chartInstance.destroy();
+                }
+
+                chartInstance = new Chart(lhkChartCanvas, {
+                    data: {
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'nearest',
+                            axis: 'x',
+                            intersect: false
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 20
+                                },
+                                onClick: function(e, legendItem, legend) {
+                                    const index = legendItem.datasetIndex;
+                                    const ci = legend.chart;
+                                    const meta = ci.getDatasetMeta(index);
+                                    
+                                    // Toggle visibility
+                                    meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
+                                    
+                                    // Save state
+                                    chartHiddenStates[legendItem.text] = meta.hidden === true;
+                                    
+                                    ci.update();
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: (items) => {
+                                        return items[0].dataset.label;
+                                    },
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) label += ': ';
+                                        label += new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(context.parsed.y);
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                position: 'bottom',
+                                min: 0, 
+                                max: 10000,
+                                title: {
+                                    display: true,
+                                    text: 'Haushaltsnetto (€)',
+                                    font: { size: 14, weight: 'bold' }
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return new Intl.NumberFormat('de-DE').format(value);
+                                    }
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'LHK-Ansatz (€)',
+                                    font: { size: 14, weight: 'bold' }
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return new Intl.NumberFormat('de-DE').format(value);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // --- EDIT MODAL LOGIC ---
+            function openEditModal() {
+                const providerName = providerSelect.value;
+                const bank = BANK_DATA.find(b => b.name === providerName);
+                if (!bank) return;
+
+                editModalTitle.textContent = `Parameter bearbeiten: ${bank.name}`;
+                editModalBody.innerHTML = ''; // Clear previous content
+
+                if (bank.name === "Wir (Simulator)") {
+                    // Specific Editor for Simulator Array
+                    let html = `<div class="mb-4 bg-yellow-50 p-4 rounded-lg border border-yellow-200 text-sm text-yellow-800">
+                        <span class="font-bold">Achtung:</span> Änderungen an dieser Tabelle beeinflussen direkt die Berechnung der individuellen Simulation.
+                    </div>
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-100 sticky top-0">
+                            <tr>
+                                <th class="p-3 font-semibold text-slate-600 border-b">Bis Einkommen (€)</th>
+                                <th class="p-3 font-semibold text-slate-600 border-b">LHK-Pauschale (€)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="edit-sim-table-body">
+                    `;
+                    
+                    SIMULATOR_LHK.forEach((row, index) => {
+                        html += `
+                            <tr class="border-b border-slate-100">
+                                <td class="p-2">
+                                    <input type="number" class="w-full p-2 border border-slate-300 rounded focus:ring-indigo-500 focus:border-indigo-500 sim-limit-input" data-index="${index}" value="${row.max}">
+                                </td>
+                                <td class="p-2">
+                                    <input type="number" class="w-full p-2 border border-slate-300 rounded focus:ring-indigo-500 focus:border-indigo-500 sim-lhk-input" data-index="${index}" value="${row.lhk}">
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    html += `</tbody></table>`;
+                    editModalBody.innerHTML = html;
+
+                    editModalSaveBtn.onclick = () => {
+                        const limitInputs = document.querySelectorAll('.sim-limit-input');
+                        const lhkInputs = document.querySelectorAll('.sim-lhk-input');
+                        
+                        // Validate and update
+                        let newLhkData = [];
+                        let prevMax = 0;
+                        for(let i=0; i<limitInputs.length; i++) {
+                            const max = parseInt(limitInputs[i].value);
+                            const lhk = parseInt(lhkInputs[i].value);
+                            if (isNaN(max) || isNaN(lhk)) {
+                                alert("Bitte gültige Zahlen eingeben.");
+                                return;
+                            }
+                            newLhkData.push({ min: prevMax + (i===0 ? 0 : 1), max: max, lhk: lhk });
+                            prevMax = max;
+                        }
+                        
+                        SIMULATOR_LHK = newLhkData;
+                        closeEditModal();
+                        updateModalViewTable(); // Update the view-only modal content
+                    };
+
+                } else if (bank.type === 'person_steps') {
+                    // Editor for Step-Based Banks (e.g. Coba)
+                    const fields = [
+                        { label: "1 Person", key: "p1", type: "number" },
+                        { label: "2 Personen", key: "p2", type: "number" },
+                        { label: "3 Personen", key: "p3", type: "number" },
+                        { label: "4 Personen", key: "p4", type: "number" },
+                        { label: "Jede weitere Person", key: "pNext", type: "number" },
+                        { label: "Max. LHK (Cap)", key: "max", type: "number" },
+                        { label: "Ansatz Netto (%)", key: "netPct", type: "number" },
+                        { label: "Logik / Bemerkung", key: "logic", type: "textarea" }
+                    ];
+
+                    let html = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+                    fields.forEach(f => {
+                         const val = bank[f.key] !== undefined ? bank[f.key] : "";
+                         const colSpan = f.type === 'textarea' ? 'md:col-span-2' : 'md:col-span-1';
+                         if (f.type === 'textarea') {
+                             html += `<div class="${colSpan}">
+                                <label class="block text-sm font-medium text-slate-700 mb-1">${f.label}</label>
+                                <textarea class="w-full p-2 border border-slate-300 rounded focus:ring-indigo-500 focus:border-indigo-500 generic-input" data-key="${f.key}" rows="2">${val}</textarea>
+                             </div>`;
+                         } else {
+                             html += `<div class="${colSpan}">
+                                <label class="block text-sm font-medium text-slate-700 mb-1">${f.label}</label>
+                                <input type="number" class="w-full p-2 border border-slate-300 rounded focus:ring-indigo-500 focus:border-indigo-500 generic-input" data-key="${f.key}" value="${val}">
+                             </div>`;
+                         }
+                    });
+                    html += `</div>
+                    <div class="mt-4 p-3 bg-blue-50 text-blue-800 text-sm rounded border border-blue-100">
+                        Hinweis: Diese Bank nutzt eine Personen-Staffel. Änderungen wirken sofort.
+                    </div>`;
+                    
+                    editModalBody.innerHTML = html;
+
+                    editModalSaveBtn.onclick = () => {
+                        const inputs = document.querySelectorAll('.generic-input');
+                        inputs.forEach(input => {
+                            const key = input.getAttribute('data-key');
+                            let val = input.value;
+                            if (key !== 'logic') {
+                                val = parseFloat(val) || 0;
+                            }
+                            bank[key] = val;
+                        });
+                        closeEditModal();
+                    };
+
+                } else {
+                    // Generic Editor for Standard Providers
+                    const fields = [
+                        { label: "Single (Basis)", key: "base", type: "number" },
+                        { label: "2. Person (Aufschlag)", key: "partner", type: "number" },
+                        { label: "Jedes Kind (Aufschlag)", key: "child", type: "number" },
+                        { label: "Ansatz Netto (%)", key: "netPct", type: "number" },
+                        { label: "Logik / Bemerkung", key: "logic", type: "textarea" }
+                    ];
+
+                    let html = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+                    fields.forEach(f => {
+                         const val = bank[f.key] !== undefined ? bank[f.key] : "";
+                         const colSpan = f.type === 'textarea' ? 'md:col-span-2' : 'md:col-span-1';
+                         if (f.type === 'textarea') {
+                             html += `<div class="${colSpan}">
+                                <label class="block text-sm font-medium text-slate-700 mb-1">${f.label}</label>
+                                <textarea class="w-full p-2 border border-slate-300 rounded focus:ring-indigo-500 focus:border-indigo-500 generic-input" data-key="${f.key}" rows="2">${val}</textarea>
+                             </div>`;
+                         } else {
+                             html += `<div class="${colSpan}">
+                                <label class="block text-sm font-medium text-slate-700 mb-1">${f.label}</label>
+                                <input type="number" class="w-full p-2 border border-slate-300 rounded focus:ring-indigo-500 focus:border-indigo-500 generic-input" data-key="${f.key}" value="${val}">
+                             </div>`;
+                         }
+                    });
+                    html += `</div>
+                    <div class="mt-4 p-3 bg-blue-50 text-blue-800 text-sm rounded border border-blue-100">
+                        Hinweis: Änderungen an diesen Parametern aktualisieren sofort die Berechnungen in der Übersicht und im LHK-Vergleichsrechner.
+                    </div>`;
+                    
+                    editModalBody.innerHTML = html;
+
+                    editModalSaveBtn.onclick = () => {
+                        const inputs = document.querySelectorAll('.generic-input');
+                        inputs.forEach(input => {
+                            const key = input.getAttribute('data-key');
+                            let val = input.value;
+                            if (key !== 'logic') {
+                                val = parseFloat(val) || 0;
+                            }
+                            bank[key] = val;
+                        });
+                        closeEditModal();
+                    };
+                }
+
+                editModal.classList.remove('opacity-0', 'pointer-events-none');
+            }
+
+            function closeEditModal() {
+                editModal.classList.add('opacity-0', 'pointer-events-none');
+                updateLhkValuesTable();
+                updateMarketTable(); // Refresh market calc table potentially
+            }
+
+            editProviderBtn.onclick = openEditModal;
+            editModalCloseIcon.onclick = closeEditModal;
+            editModalCancelBtn.onclick = closeEditModal;
+
+            // Update the standard modal viewing table based on SIMULATOR_LHK
+            function updateModalViewTable() {
+                const modalBody = document.getElementById('modal-table-body');
+                modalBody.innerHTML = '';
+                SIMULATOR_LHK.forEach(b => {
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b hover:bg-slate-50";
+                    tr.innerHTML = `<td class="p-3 text-slate-700">${b.min} - ${b.max} €</td><td class="p-3 text-right font-bold text-indigo-600">${b.lhk} €</td>`;
+                    modalBody.appendChild(tr);
+                });
+            }
+
+            // --- TAB LOGIC ---
+            function switchTab(id) {
+                Object.keys(tabContents).forEach(k => {
+                    tabContents[k].classList.toggle('hidden', k !== id);
+                    tabButtons[k].classList.toggle('tab-active', k === id);
+                    tabButtons[k].classList.toggle('tab-inactive', k !== id);
+                });
+                if (id === 'matrix') generateMatrix();
+                if (id === 'chart') {
+                    // Update Chart Inputs from current Market Inputs
+                    syncInputsFromMarketToChart();
+                    generateChart();
+                }
+            }
+
+            function generateMatrix() {
+                const incomes = [1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 12000];
+                const kidsArr = [0, 1, 2, 3, 4];
+                const zins = parseNum(document.getElementById('matrix-interest').value);
+                const tilg = parseNum(document.getElementById('matrix-repayment').value);
+                const totalRatePct = (zins + tilg) / 100;
+
+                const container = document.getElementById('matrix-container');
+                let html = '<table class="w-full text-left border-collapse text-sm">';
+                html += '<thead class="bg-slate-100"><tr><th class="p-4 border-b-2">Haushaltsnetto</th>';
+                kidsArr.forEach(k => html += `<th class="p-4 text-right border-b-2">${k} Kind(er)</th>`);
+                html += '</tr></thead><tbody>';
+
+                incomes.forEach(inc => {
+                    html += `<tr class="border-b hover:bg-slate-50 transition-colors"><td class="p-4 font-bold text-slate-700">${fmt.format(inc)}</td>`;
+                    kidsArr.forEach(k => {
+                        const totalInc = inc + (k * CHILD_BENEFIT);
+                        const bracket = SIMULATOR_LHK.find(b => totalInc >= b.min && totalInc <= b.max);
+                        const lhk = bracket ? bracket.lhk : 4000;
+                        const free = totalInc - lhk;
+                        const loan = free > 0 ? (free * 12) / totalRatePct : 0;
+                        html += `<td class="p-4 text-right ${loan > 0 ? 'text-indigo-600 font-bold' : 'text-slate-300'}">${loan > 0 ? fmt.format(loan) : '-'}</td>`;
+                    });
+                    html += '</tr>';
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            }
+
+            // --- EVENTS ---
+            tabButtons.individual.onclick = () => switchTab('individual');
+            tabButtons.matrix.onclick = () => switchTab('matrix');
+            tabButtons.market.onclick = () => switchTab('market');
+            tabButtons.chart.onclick = () => switchTab('chart');
+            tabButtons.lhkValues.onclick = () => switchTab('lhkValues');
+            tabButtons.bonitaet.onclick = () => switchTab('bonitaet');
+
+            // MARKET TAB EVENTS
+            marketStatusButtons.single.onclick = () => {
+                marketIsPaar = false;
+                updateMarketStatusButtons();
+                updateMarketTable();
+            };
+            marketStatusButtons.couple.onclick = () => {
+                marketIsPaar = true;
+                updateMarketStatusButtons();
+                updateMarketTable();
+            };
+            marketKidsSelect.onchange = (e) => {
+                marketKids = parseInt(e.target.value);
+                updateMarketTable();
+            };
+            marketIncomeInput.oninput = (e) => {
+                 const val = e.target.value.replace(/\D/g, '');
+                 e.target.value = val ? new Intl.NumberFormat('de-DE').format(val) : '';
+                 updateMarketTable();
+            };
+
+            // CHART TAB EVENTS
+            chartStatusButtons.single.onclick = () => {
+                marketIsPaar = false;
+                updateChartStatusButtons(); // Update visual state immediately
+                syncInputsFromChartToMarket();
+                generateChart();
+            };
+            chartStatusButtons.couple.onclick = () => {
+                marketIsPaar = true;
+                updateChartStatusButtons(); // Update visual state immediately
+                syncInputsFromChartToMarket();
+                generateChart();
+            };
+            chartKidsSelect.onchange = (e) => {
+                marketKids = parseInt(e.target.value);
+                syncInputsFromChartToMarket();
+                generateChart();
+            };
+
+            calculateBtn.onclick = () => {
+                const inc = parseNum(incomeInput.value);
+                const kids = parseInt(kidsSelect.value);
+                const zins = parseNum(interestInput.value);
+                const tilg = parseNum(repayInput.value);
+                
+                const totalInc = inc + (kids * CHILD_BENEFIT);
+                const bracket = SIMULATOR_LHK.find(b => totalInc >= b.min && totalInc <= b.max);
+                const lhk = bracket ? bracket.lhk : 4000;
+                const free = totalInc - lhk;
+                const loan = free > 0 ? (free * 12) / ((zins + tilg) / 100) : 0;
+
+                document.getElementById('result-total-income').textContent = fmt.format(totalInc);
+                document.getElementById('result-lhk').textContent = fmt.format(lhk);
+                document.getElementById('result-rate').textContent = fmt.format(free);
+                document.getElementById('result-loan').textContent = fmt.format(loan);
+                
+                // Simple animation
+                resultContainer.classList.remove('hidden');
+                resultContainer.style.opacity = 0;
+                setTimeout(() => {
+                    resultContainer.style.transition = 'opacity 0.5s ease';
+                    resultContainer.style.opacity = 1;
+                }, 10);
+            };
+
+            // Formatting inputs
+            incomeInput.oninput = (e) => {
+                const val = e.target.value.replace(/\D/g, '');
+                e.target.value = val ? new Intl.NumberFormat('de-DE').format(val) : '';
+            };
+
+            // --- INIT ---
+            updateMarketTable();
+            updateLhkValuesTable();
+            updateModalViewTable();
+            
+            document.getElementById('show-table-btn').onclick = () => {
+                const modal = document.getElementById('modal');
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+            };
+            document.getElementById('modal-close-btn').onclick = document.getElementById('modal-close-icon').onclick = () => {
+                const modal = document.getElementById('modal');
+                modal.classList.add('opacity-0', 'pointer-events-none');
+            };
+
+            // --- DOWNLOAD LOGIC ---
+            document.getElementById('download-app-btn').onclick = () => {
+                const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Darlehenssimulator_v2.24.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            };
+        });
+    </script>
+
+</body></html>
